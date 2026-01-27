@@ -5,6 +5,7 @@ import type { CalendarEvent, EventCategory, Bundle } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { saveKingdomSettings } from '@/lib/actions'
 
 
 
@@ -12,22 +13,33 @@ interface CalendarTimelineProps {
   events: CalendarEvent[]
   categories: EventCategory[]
   bundles: Bundle[]
+  kingdomSettings: { kingdom_start_date: string | null; monument_day: number | null } | null
 }
+
 
 const TOTAL_DAYS = 130
 const DAY_WIDTH = 56
 const ROW_HEIGHT = 50
 const HEADER_HEIGHT = 60
 
-export function CalendarTimeline({ events, categories, bundles }: CalendarTimelineProps) {
+export function CalendarTimeline({ events, categories, bundles, kingdomSettings }: CalendarTimelineProps) {
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
     new Set(categories.map(c => c.id))
   )
   const [showBundles, setShowBundles] = useState(true)
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
-  const [monumentDay, setMonumentDay] = useState<number | null>(null)
+  const [kingdomStartDate, setKingdomStartDate] = useState<string>(kingdomSettings?.kingdom_start_date ?? '')
+  const [monumentDay, setMonumentDay] = useState<number | null>(kingdomSettings?.monument_day ?? null)
+  
 
-  // ===== Monument-based Wheel of Fortune calculation (client-side only) =====
+
+
+  
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  
+  const [scrollPosition, setScrollPosition] = useState(0)
+
 const calculatedWheelEvents: CalendarEvent[] = monumentDay
   ? Array.from({ length: 6 }).map((_, i) => {
       const start = monumentDay + i * 14
@@ -36,26 +48,18 @@ const calculatedWheelEvents: CalendarEvent[] = monumentDay
         name: 'Wheel of Fortune',
         start_day: start,
         end_day: start + 2,
-        description: 'Automatically calculated based on your Monument completion day.',
+        description: 'Calculated from your Monument completion day.',
         category_id: null,
-        created_by: '',
-
+        created_by: 'local',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }
     })
   : []
 
-  
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  
-  const [scrollPosition, setScrollPosition] = useState(0)
 
-  const filteredEvents = [
-  ...events,
-  ...calculatedWheelEvents,
-].filter(event => 
+const filteredEvents = [...events, ...calculatedWheelEvents].filter(event =>
   !event.category_id || selectedCategories.has(event.category_id)
 )
 
@@ -126,6 +130,14 @@ const calculatedWheelEvents: CalendarEvent[] = monumentDay
       return () => container.removeEventListener('scroll', handleScroll)
     }
   }, [])
+const handleSaveSettings = async () => {
+  if (!kingdomSettings) return
+
+  await saveKingdomSettings({
+    kingdom_start_date: kingdomStartDate || null,
+    monument_day: monumentDay,
+  })
+}
 
   const getCategoryColor = (categoryId: string | null) => {
     
@@ -137,31 +149,56 @@ const calculatedWheelEvents: CalendarEvent[] = monumentDay
 
   return (
     <div className="flex flex-col gap-4">
-          {/* Monument-based Wheel calculation input */}
-    <div className="flex items-center gap-4 p-4 bg-card rounded-lg border border-border">
-      <div className="flex flex-col">
-        <span className="text-sm font-medium text-foreground">
+      {kingdomSettings !== null && (
+  <div className="rounded-lg border border-border bg-card p-4 flex flex-col gap-3">
+    <div>
+      <div className="text-sm font-semibold">
+        My Kingdom Setup
+      </div>
+      <div className="text-xs text-muted-foreground">
+        Set your kingdom start date (UTC). This will convert Day 1–130 into real dates.
+        Monument day is used to calculate Wheel of Fortune.
+      </div>
+    </div>
+
+    <div className="flex flex-wrap items-end gap-3">
+      <label className="flex flex-col gap-1">
+        <span className="text-xs text-muted-foreground">
+          Kingdom start date (UTC)
+        </span>
+        <input
+          type="date"
+          className="h-9 rounded-md border border-border bg-background px-3 text-sm"
+          value={kingdomStartDate}
+          onChange={(e) => setKingdomStartDate(e.target.value)}
+        />
+      </label>
+
+      <label className="flex flex-col gap-1">
+        <span className="text-xs text-muted-foreground">
           Monument completion day
         </span>
-        <span className="text-xs text-muted-foreground">
-          Enter the day your kingdom completed a Monument stage.
-          Wheel of Fortune dates will be calculated automatically.
-        </span>
-      </div>
+        <input
+          type="number"
+          min={1}
+          max={130}
+          className="h-9 w-28 rounded-md border border-border bg-background px-3 text-sm"
+          value={monumentDay ?? ''}
+          onChange={(e) => {
+            const v = Number(e.target.value)
+            setMonumentDay(Number.isNaN(v) ? null : v)
+          }}
+        />
+      </label>
 
-      <input
-        type="number"
-        min={1}
-        max={130}
-        placeholder="e.g. 9"
-        className="ml-auto w-24 rounded-md border border-border bg-background px-2 py-1 text-sm"
-        value={monumentDay ?? ''}
-        onChange={(e) => {
-          const value = Number(e.target.value)
-          setMonumentDay(Number.isNaN(value) ? null : value)
-        }}
-      />
+      <Button onClick={handleSaveSettings} className="h-9">
+        Save
+      </Button>
     </div>
+  </div>
+)}
+
+
       {/* Filter Controls */}
       <div className="flex flex-wrap items-center gap-2 p-4 bg-card rounded-lg border border-border">
         <span className="text-sm font-medium text-muted-foreground mr-2">Filters:</span>
@@ -259,6 +296,12 @@ const calculatedWheelEvents: CalendarEvent[] = monumentDay
                     style={{ width: DAY_WIDTH, minWidth: DAY_WIDTH }}
                   >
                     <span className="font-semibold text-foreground">{day}</span>
+{kingdomStartDate && (
+  <span className="text-[10px] text-muted-foreground">
+    {new Date(Date.parse(`${kingdomStartDate}T00:00:00Z`) + (day - 1) * 86400000)
+      .toLocaleDateString('en-GB', { timeZone: 'UTC', day: '2-digit', month: 'short' })}
+  </span>
+)}
                     <span className="text-muted-foreground text-[10px]">Day</span>
                   </div>
                 )

@@ -601,3 +601,42 @@ export async function updateBundleCell(tierId: string, columnId: string, value: 
   revalidateTag('bundles', 'max')
   return { success: true }
 }
+
+// ===== Kingdom Settings (per-user) =====
+
+
+export async function getKingdomSettings() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data, error } = await supabase
+    .from("user_kingdom_settings")
+    .select("kingdom_start_date, monument_day")
+    .eq("user_id", user.id)
+    .maybeSingle()
+
+  if (error) throw error
+  return data ?? null
+}
+
+export async function saveKingdomSettings(input: {
+  kingdom_start_date: string | null // YYYY-MM-DD
+  monument_day: number | null
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Not signed in")
+
+  const { error } = await supabase
+    .from("user_kingdom_settings")
+    .upsert({
+      user_id: user.id,
+      kingdom_start_date: input.kingdom_start_date,
+      monument_day: input.monument_day,
+      updated_at: new Date().toISOString(),
+    })
+
+  if (error) throw error
+}
+

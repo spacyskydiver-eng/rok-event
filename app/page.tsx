@@ -4,19 +4,28 @@ import { Header } from '@/components/header'
 import { CalendarTimeline } from '@/components/calendar-timeline'
 import { AdminPanel } from '@/components/admin-panel'
 import { BundleManager } from '@/components/bundle-manager'
+import { getKingdomSettings } from '@/lib/actions'
 
 
 export default async function HomePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
-  const [events, categories, whitelist, permissions, bundles] = await Promise.all([
-    getEvents(),
-    getCategories(),
-    getWhitelist(),
-    getUserPermissions(),
-    getBundles()
-  ])
+const [
+  events,
+  categories,
+  whitelist,
+  permissions,
+  bundles,
+  kingdomSettings,
+] = await Promise.all([
+  getEvents(),
+  getCategories(),
+  getWhitelist(),
+  getUserPermissions(),
+  getBundles(),
+  getKingdomSettings(),
+])
 
   return (
     <div className="min-h-screen bg-background">
@@ -61,6 +70,7 @@ export default async function HomePage() {
     events={events}
     categories={categories}
     bundles={bundles.filter(b => b.show_on_calendar)}
+    kingdomSettings={kingdomSettings}
   />
 </div>
 
