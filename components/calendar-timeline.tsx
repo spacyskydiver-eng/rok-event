@@ -25,6 +25,9 @@ export function CalendarTimeline({ events, categories, bundles }: CalendarTimeli
   )
   const [showBundles, setShowBundles] = useState(true)
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
+  const [monumentDay, setMonumentDay] = useState<number | null>(null)
+  
+
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   
   const [scrollPosition, setScrollPosition] = useState(0)
@@ -109,6 +112,31 @@ export function CalendarTimeline({ events, categories, bundles }: CalendarTimeli
 
   return (
     <div className="flex flex-col gap-4">
+          {/* Monument-based Wheel calculation input */}
+    <div className="flex items-center gap-4 p-4 bg-card rounded-lg border border-border">
+      <div className="flex flex-col">
+        <span className="text-sm font-medium text-foreground">
+          Monument completion day
+        </span>
+        <span className="text-xs text-muted-foreground">
+          Enter the day your kingdom completed a Monument stage.
+          Wheel of Fortune dates will be calculated automatically.
+        </span>
+      </div>
+
+      <input
+        type="number"
+        min={1}
+        max={130}
+        placeholder="e.g. 9"
+        className="ml-auto w-24 rounded-md border border-border bg-background px-2 py-1 text-sm"
+        value={monumentDay ?? ''}
+        onChange={(e) => {
+          const value = Number(e.target.value)
+          setMonumentDay(Number.isNaN(value) ? null : value)
+        }}
+      />
+    </div>
       {/* Filter Controls */}
       <div className="flex flex-wrap items-center gap-2 p-4 bg-card rounded-lg border border-border">
         <span className="text-sm font-medium text-muted-foreground mr-2">Filters:</span>
