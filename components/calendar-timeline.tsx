@@ -26,15 +26,38 @@ export function CalendarTimeline({ events, categories, bundles }: CalendarTimeli
   const [showBundles, setShowBundles] = useState(true)
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const [monumentDay, setMonumentDay] = useState<number | null>(null)
+
+  // ===== Monument-based Wheel of Fortune calculation (client-side only) =====
+const calculatedWheelEvents: CalendarEvent[] = monumentDay
+  ? Array.from({ length: 6 }).map((_, i) => {
+      const start = monumentDay + i * 14
+      return {
+        id: `wheel-${i}`,
+        name: 'Wheel of Fortune',
+        start_day: start,
+        end_day: start + 2,
+        description: 'Automatically calculated based on your Monument completion day.',
+        category_id: null,
+        created_by: '',
+
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+    })
+  : []
+
   
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   
   const [scrollPosition, setScrollPosition] = useState(0)
 
-  const filteredEvents = events.filter(event => 
-    !event.category_id || selectedCategories.has(event.category_id)
-  )
+  const filteredEvents = [
+  ...events,
+  ...calculatedWheelEvents,
+].filter(event => 
+  !event.category_id || selectedCategories.has(event.category_id)
+)
 
   const toggleCategory = (categoryId: string) => {
     setSelectedCategories(prev => {
@@ -105,6 +128,8 @@ export function CalendarTimeline({ events, categories, bundles }: CalendarTimeli
   }, [])
 
   const getCategoryColor = (categoryId: string | null) => {
+    
+
     if (!categoryId) return '#6b7280'
     const category = categories.find(c => c.id === categoryId)
     return category?.color || '#6b7280'
