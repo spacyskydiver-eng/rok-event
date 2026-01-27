@@ -617,7 +617,7 @@ export async function getKingdomSettings() {
     .maybeSingle()
 
   if (error) throw error
-  return data ?? null
+  return data ?? { kingdom_start_date: null, monument_day: null }
 }
 
 export async function saveKingdomSettings(input: {
