@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 
+
 interface CalendarTimelineProps {
   events: CalendarEvent[]
   categories: EventCategory[]
@@ -264,8 +265,7 @@ export function CalendarTimeline({ events, categories, bundles }: CalendarTimeli
                       backgroundColor: color,
                       marginLeft: 2
                     }}
-                    onMouseEnter={() => setHoveredEvent(event)}
-                    onMouseLeave={() => setHoveredEvent(null)}
+                    onClick={() => setHoveredEvent(event)}
                   >
                     <div className="px-2 py-1 h-full flex items-center overflow-hidden">
                       <span className="text-xs font-medium text-white truncate drop-shadow-sm">

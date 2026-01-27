@@ -87,7 +87,7 @@ export default async function HomePage() {
             <div className="bg-muted/50 rounded-lg p-6 text-center">
               <p className="text-muted-foreground">
                 {permissions.isAuthenticated 
-                  ? "You're viewing as a regular user. Contact an admin to get edit permissions."
+                  ? "TEST. Contact an admin to get edit permissions."
                   : "Sign in to get edit access (if whitelisted by an admin)."}
               </p>
             </div>
