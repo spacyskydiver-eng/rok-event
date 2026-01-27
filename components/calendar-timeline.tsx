@@ -24,7 +24,7 @@ export function CalendarTimeline({ events, categories, bundles }: CalendarTimeli
     new Set(categories.map(c => c.id))
   )
   const [showBundles, setShowBundles] = useState(true)
-  const [hoveredEvent, setHoveredEvent] = useState<CalendarEvent | null>(null)
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   
   const [scrollPosition, setScrollPosition] = useState(0)
@@ -157,7 +157,7 @@ export function CalendarTimeline({ events, categories, bundles }: CalendarTimeli
       </div>
 
       {/* Timeline */}
-      <div className="relative bg-slate-800/80 backdrop-blur rounded-lg border border-slate-700 overflow-hidden">
+      <div className="relative bg-slate-800/80 backdrop-blur rounded-lg border border-slate-700">
         {/* Navigation Buttons */}
         <div className="absolute left-2 top-1/2 -translate-y-1/2 z-20">
           <Button
@@ -265,7 +265,7 @@ export function CalendarTimeline({ events, categories, bundles }: CalendarTimeli
                       backgroundColor: color,
                       marginLeft: 2
                     }}
-                    onClick={() => setHoveredEvent(event)}
+                    onClick={() => setSelectedEvent(event)}
                   >
                     <div className="px-2 py-1 h-full flex items-center overflow-hidden">
                       <span className="text-xs font-medium text-white truncate drop-shadow-sm">
@@ -314,27 +314,39 @@ export function CalendarTimeline({ events, categories, bundles }: CalendarTimeli
           </div>
         </div>
 
-        {/* Tooltip */}
-        {hoveredEvent && (
-          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-popover border border-border rounded-lg shadow-xl p-4 max-w-sm">
-            <h4 className="font-semibold text-foreground">{hoveredEvent.name}</h4>
-            <p className="text-sm text-muted-foreground mt-1">
-              Days {hoveredEvent.start_day} - {hoveredEvent.end_day} ({hoveredEvent.end_day - hoveredEvent.start_day + 1} days)
-            </p>
-            {hoveredEvent.description && (
-              <p className="text-sm text-muted-foreground mt-2">{hoveredEvent.description}</p>
-            )}
-            {hoveredEvent.category && (
-              <div className="flex items-center gap-2 mt-2">
-                <span
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: hoveredEvent.category.color }}
-                />
-                <span className="text-xs text-muted-foreground">{hoveredEvent.category.name}</span>
-              </div>
-            )}
-          </div>
-        )}
+{selectedEvent && (
+  <div
+  className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+  onClick={() => setSelectedEvent(null)}
+>
+    <div
+  className="bg-card rounded-xl shadow-2xl max-w-lg w-full p-6 relative"
+  onClick={e => e.stopPropagation()}
+>
+      <button
+        onClick={() => setSelectedEvent(null)}
+        className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
+      >
+        ✕
+      </button>
+
+      <h3 className="text-xl font-semibold mb-2">
+        {selectedEvent.name}
+      </h3>
+
+      <p className="text-sm text-muted-foreground mb-4">
+        Days {selectedEvent.start_day} – {selectedEvent.end_day}
+      </p>
+
+      {selectedEvent.description && (
+        <div className="text-sm leading-relaxed whitespace-pre-wrap">
+          {selectedEvent.description}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
       </div>
 
       {/* Legend */}
