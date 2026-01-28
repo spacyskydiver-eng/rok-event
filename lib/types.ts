@@ -14,6 +14,32 @@ export type EventTag =
   | 'SPEEDUP_USAGE'
   | 'GEM_SPENDING'
 
+export type RewardType =
+  | 'speedup_universal_minutes'
+  | 'speedup_building_minutes'
+  | 'speedup_research_minutes'
+  | 'speedup_training_minutes'
+  | 'speedup_healing_minutes'
+  | 'resource_food'
+  | 'resource_wood'
+  | 'resource_stone'
+  | 'resource_gold'
+  | 'gems'
+  | 'gold_keys'
+  | 'silver_keys'
+  | 'epic_sculptures'
+  | 'legendary_sculptures'
+
+export interface EventRewardItem {
+  type: RewardType
+  amount: number
+}
+
+export interface EventRewards {
+  items: EventRewardItem[]
+  assumes_full_completion: boolean
+}
+
 export interface CalendarEvent {
   id: string
   name: string
@@ -26,12 +52,12 @@ export interface CalendarEvent {
   updated_at: string
   category?: EventCategory
   tags?: EventTag[]
+  rewards?: EventRewards | null
 }
 
 export interface CalendarEventWithMeta extends CalendarEvent {
-  rewards?: EventRewards
+  // keep extension in case you add more meta later
 }
-
 
 export interface WhitelistUser {
   id: string
@@ -101,36 +127,4 @@ export type CalendarItem = {
   type: 'event' | 'bundle'
   color: string
   description?: string | null
-}
-
-export type RewardType =
-  | 'speedup_universal_minutes'
-  | 'speedup_building_minutes'
-  | 'speedup_research_minutes'
-  | 'speedup_training_minutes'
-  | 'speedup_healing_minutes'
-  | 'resource_food'
-  | 'resource_wood'
-  | 'resource_stone'
-  | 'resource_gold'
-  | 'gems'
-  | 'gold_keys'
-  | 'silver_keys'
-  | 'epic_sculptures'
-  | 'legendary_sculptures'
-
-export interface EventRewardItem {
-  type: RewardType
-  amount: number
-}
-
-export interface EventRewards {
-  items: EventRewardItem[]
-  assumes_full_completion: boolean
-}
-
-export interface CalendarEventWithMeta extends CalendarEvent {
-  rewards?: EventRewards
-  // tags already exist on CalendarEvent, but keeping optional here is harmless
-  tags?: EventTag[]
 }
