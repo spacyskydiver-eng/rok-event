@@ -4,6 +4,7 @@ import { Inter, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
+import { EventSelectionProvider } from '@/components/event-selection-context'
 
 const _inter = Inter({ subsets: ["latin"] });
 const _jetbrainsMono = JetBrains_Mono({ subsets: ["latin"] });
@@ -38,11 +39,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className="min-h-screen font-sans antialiased bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-foreground">
-        {children}
-        <Toaster />
-        <Analytics />
-      </body>
+<body className="min-h-screen font-sans antialiased bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-foreground">
+  <EventSelectionProvider>
+    {children}
+  </EventSelectionProvider>
+
+  <Toaster />
+  <Analytics />
+</body>
     </html>
   )
 }
