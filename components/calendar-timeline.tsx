@@ -70,8 +70,8 @@ const wheelEvents: CalendarEvent[] = (() => {
   if (Number.isNaN(kingdomStartMs) || Number.isNaN(inputMs)) return []
 
   const adjustedMs = nextUtcTuesdayMs(inputMs)
-  const day1Based =
-    Math.floor((adjustedMs - kingdomStartMs) / 86400000) + 1
+const day1Based = Math.round((adjustedMs - kingdomStartMs) / 86400000) + 1
+
 
   if (day1Based < 1 || day1Based > TOTAL_DAYS) return []
 
