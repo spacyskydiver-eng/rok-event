@@ -33,7 +33,24 @@ export function CalendarTimeline({ events, categories, bundles, kingdomSettings 
   const [wheelNote, setWheelNote] = useState<string | null>(null)
   
   
+useEffect(() => {
+  if (!firstCaoWheelDate) {
+    setWheelNote(null)
+    return
+  }
 
+  const inputMs = toUtcMidnightMs(firstCaoWheelDate)
+  const adjustedMs = nextUtcTuesdayMs(inputMs)
+  const adjustedYmd = msToYmdUtc(adjustedMs)
+
+  if (adjustedYmd !== firstCaoWheelDate) {
+    setWheelNote(
+      `Note: Wheels run on Tuesdays. Adjusted to next Tuesday (UTC): ${adjustedYmd}`
+    )
+  } else {
+    setWheelNote(null)
+  }
+}, [firstCaoWheelDate])
 
 
   
@@ -45,9 +62,6 @@ export function CalendarTimeline({ events, categories, bundles, kingdomSettings 
 
 // ===== Wheel of Fortune generation (anchored by first Cao wheel) =====
 const wheelEvents: CalendarEvent[] = (() => {
-  setWheelNote(null)
-
-  // Need both to place it correctly on the Day 1–130 grid
   if (!kingdomStartDate || !firstCaoWheelDate) return []
 
   const kingdomStartMs = toUtcMidnightMs(kingdomStartDate)
@@ -55,30 +69,24 @@ const wheelEvents: CalendarEvent[] = (() => {
 
   if (Number.isNaN(kingdomStartMs) || Number.isNaN(inputMs)) return []
 
-  // Force the anchor to a Tuesday (UTC)
   const adjustedMs = nextUtcTuesdayMs(inputMs)
-  const adjustedYmd = msToYmdUtc(adjustedMs)
+  const day1Based =
+    Math.floor((adjustedMs - kingdomStartMs) / 86400000) + 1
 
-  if (adjustedYmd !== firstCaoWheelDate) {
-    setWheelNote(`Note: Wheels run on Tuesdays. Adjusted to next Tuesday (UTC): ${adjustedYmd}`)
-  }
-
-  // Convert the anchor date to a kingdom day number
-  const day1Based = Math.floor((adjustedMs - kingdomStartMs) / 86400000) + 1
-
-  // If outside the 1–130 window, don’t render
   if (day1Based < 1 || day1Based > TOTAL_DAYS) return []
 
-  const names = ["Wheel of Fortune (Cao Cao)", "Wheel of Fortune (Richard)"]
+  const names = [
+    "Wheel of Fortune (Cao Cao)",
+    "Wheel of Fortune (Richard)",
+  ]
 
-  // generate wheels within the 1–130 window
   const result: CalendarEvent[] = []
+
   for (let i = 0; i < 20; i++) {
     const start_day = day1Based + i * 14
     const end_day = start_day + 2
 
     if (start_day > TOTAL_DAYS) break
-    if (end_day < 1) continue
 
     result.push({
       id: `wheel-${i}-${start_day}`,
@@ -88,14 +96,12 @@ const wheelEvents: CalendarEvent[] = (() => {
       description:
         i === 0
           ? "Anchored to your first Cao Cao Wheel date."
-          : "Generated every 14 days (Tuesdays) from your Cao Cao Wheel.",
+          : "Occurs every 14 days (Tuesdays) for your cohort.",
       category_id: null,
-
-      // required fields in your CalendarEvent type:
       created_by: "local",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-    } as CalendarEvent)
+    })
   }
 
   return result
