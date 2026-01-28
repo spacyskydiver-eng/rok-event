@@ -13,7 +13,7 @@ interface CalendarTimelineProps {
   events: CalendarEvent[]
   categories: EventCategory[]
   bundles: Bundle[]
-  kingdomSettings: { kingdom_start_date: string | null; monument_day: number | null } | null
+  kingdomSettings: { kingdom_start_date: string | null } | null
 }
 
 
@@ -29,7 +29,9 @@ export function CalendarTimeline({ events, categories, bundles, kingdomSettings 
   const [showBundles, setShowBundles] = useState(true)
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const [kingdomStartDate, setKingdomStartDate] = useState<string>(kingdomSettings?.kingdom_start_date ?? '')
-  const [monumentDay, setMonumentDay] = useState<number | null>(kingdomSettings?.monument_day ?? null)
+  const [firstCaoWheelDate, setFirstCaoWheelDate] = useState<string>('') // YYYY-MM-DD (UTC)
+  const [wheelNote, setWheelNote] = useState<string | null>(null)
+  
   
 
 
@@ -40,28 +42,71 @@ export function CalendarTimeline({ events, categories, bundles, kingdomSettings 
   
   const [scrollPosition, setScrollPosition] = useState(0)
 
-const calculatedWheelEvents: CalendarEvent[] = monumentDay
-  ? Array.from({ length: 6 }).map((_, i) => {
-      const start = monumentDay + i * 14
-      return {
-        id: `wheel-${i}`,
-        name: 'Wheel of Fortune',
-        start_day: start,
-        end_day: start + 2,
-        description: 'Calculated from your Monument completion day.',
-        category_id: null,
-        created_by: 'local',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }
-    })
-  : []
+
+// ===== Wheel of Fortune generation (anchored by first Cao wheel) =====
+const wheelEvents: CalendarEvent[] = (() => {
+  setWheelNote(null)
+
+  // Need both to place it correctly on the Day 1–130 grid
+  if (!kingdomStartDate || !firstCaoWheelDate) return []
+
+  const kingdomStartMs = toUtcMidnightMs(kingdomStartDate)
+  const inputMs = toUtcMidnightMs(firstCaoWheelDate)
+
+  if (Number.isNaN(kingdomStartMs) || Number.isNaN(inputMs)) return []
+
+  // Force the anchor to a Tuesday (UTC)
+  const adjustedMs = nextUtcTuesdayMs(inputMs)
+  const adjustedYmd = msToYmdUtc(adjustedMs)
+
+  if (adjustedYmd !== firstCaoWheelDate) {
+    setWheelNote(`Note: Wheels run on Tuesdays. Adjusted to next Tuesday (UTC): ${adjustedYmd}`)
+  }
+
+  // Convert the anchor date to a kingdom day number
+  const day1Based = Math.floor((adjustedMs - kingdomStartMs) / 86400000) + 1
+
+  // If outside the 1–130 window, don’t render
+  if (day1Based < 1 || day1Based > TOTAL_DAYS) return []
+
+  const names = ["Wheel of Fortune (Cao Cao)", "Wheel of Fortune (Richard)"]
+
+  // generate wheels within the 1–130 window
+  const result: CalendarEvent[] = []
+  for (let i = 0; i < 20; i++) {
+    const start_day = day1Based + i * 14
+    const end_day = start_day + 2
+
+    if (start_day > TOTAL_DAYS) break
+    if (end_day < 1) continue
+
+    result.push({
+      id: `wheel-${i}-${start_day}`,
+      name: names[i] ?? "Wheel of Fortune",
+      start_day,
+      end_day: Math.min(end_day, TOTAL_DAYS),
+      description:
+        i === 0
+          ? "Anchored to your first Cao Cao Wheel date."
+          : "Generated every 14 days (Tuesdays) from your Cao Cao Wheel.",
+      category_id: null,
+
+      // required fields in your CalendarEvent type:
+      created_by: "local",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    } as CalendarEvent)
+  }
+
+  return result
+})()
 
 
-
-const filteredEvents = [...events, ...calculatedWheelEvents].filter(event =>
+const filteredEvents = [...events, ...wheelEvents].filter(event =>
   !event.category_id || selectedCategories.has(event.category_id)
 )
+
+
 
   const toggleCategory = (categoryId: string) => {
     setSelectedCategories(prev => {
@@ -135,7 +180,7 @@ const handleSaveSettings = async () => {
 
   await saveKingdomSettings({
     kingdom_start_date: kingdomStartDate || null,
-    monument_day: monumentDay,
+    monument_day: null,
   })
 }
 
@@ -146,6 +191,25 @@ const handleSaveSettings = async () => {
     const category = categories.find(c => c.id === categoryId)
     return category?.color || '#6b7280'
   }
+  function toUtcMidnightMs(dateStr: string) {
+  // dateStr = "YYYY-MM-DD"
+  return Date.parse(`${dateStr}T00:00:00Z`)
+}
+
+function nextUtcTuesdayMs(ms: number) {
+  // 0=Sun,1=Mon,2=Tue...
+  const d = new Date(ms)
+  const day = d.getUTCDay()
+  const daysUntilTuesday = (2 - day + 7) % 7
+  return ms + daysUntilTuesday * 86400000
+}
+
+function msToYmdUtc(ms: number) {
+  return new Date(ms).toISOString().slice(0, 10)
+}
+
+
+
 
   return (
     <div className="flex flex-col gap-4">
@@ -174,22 +238,7 @@ const handleSaveSettings = async () => {
         />
       </label>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-xs text-muted-foreground">
-          Monument completion day
-        </span>
-        <input
-          type="number"
-          min={1}
-          max={130}
-          className="h-9 w-28 rounded-md border border-border bg-background px-3 text-sm"
-          value={monumentDay ?? ''}
-          onChange={(e) => {
-            const v = Number(e.target.value)
-            setMonumentDay(Number.isNaN(v) ? null : v)
-          }}
-        />
-      </label>
+      
 
       <Button onClick={handleSaveSettings} className="h-9">
         Save
@@ -197,6 +246,41 @@ const handleSaveSettings = async () => {
     </div>
   </div>
 )}
+{/* Wheel of Fortune Setup (client-side only) */}
+<div className="flex flex-col gap-2 p-4 bg-card rounded-lg border border-border">
+  <div className="flex flex-wrap items-start justify-between gap-3">
+    <div className="flex flex-col">
+      <span className="text-sm font-semibold text-foreground">
+        Wheel of Fortune (Cao Cao) setup
+      </span>
+      <span className="text-xs text-muted-foreground">
+        Best option: enter the first date your kingdom got the Cao Cao Wheel (UTC). This anchors all future Wheels.
+      </span>
+    </div>
+
+    <label className="flex flex-col gap-1">
+      <span className="text-xs text-muted-foreground">First Cao Cao Wheel date (UTC)</span>
+      <input
+        type="date"
+        className="h-9 rounded-md border border-border bg-background px-3 text-sm"
+        value={firstCaoWheelDate}
+        onChange={(e) => setFirstCaoWheelDate(e.target.value)}
+      />
+    </label>
+  </div>
+
+  {!kingdomStartDate && (
+    <div className="text-xs text-amber-300/90">
+      Set your Kingdom start date above to place Wheel events correctly on the Day 1–130 timeline.
+    </div>
+  )}
+
+  {wheelNote && (
+    <div className="text-xs text-muted-foreground">
+      {wheelNote}
+    </div>
+  )}
+</div>
 
 
       {/* Filter Controls */}
