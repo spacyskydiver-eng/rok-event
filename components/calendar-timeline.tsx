@@ -436,7 +436,10 @@ export function CalendarTimeline({ events, categories, bundles }: CalendarTimeli
                       backgroundColor: color,
                       marginLeft: 2,
                     }}
-                    onClick={() => toggleEvent(event as CalendarEventWithMeta)}
+                    onClick={() => {
+  if (event.created_by === 'local') return
+  toggleEvent(event as CalendarEventWithMeta)
+}}
                   >
                     <div className="px-2 py-1 h-full flex items-center overflow-hidden">
                       <span className="text-xs font-medium text-white truncate">{event.name}</span>
