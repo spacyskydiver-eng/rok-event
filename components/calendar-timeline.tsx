@@ -1,16 +1,23 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import type { CalendarEvent, EventCategory, Bundle } from '@/lib/types'
+import type {
+  CalendarEvent,
+  CalendarEventWithMeta,
+  EventCategory,
+  Bundle
+} from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useEventSelection } from '@/components/event-selection-context'
+import RewardsSummary from '@/components/rewards-summary'
 
 
 
 
 interface CalendarTimelineProps {
-  events: CalendarEvent[]
+  events: CalendarEventWithMeta[]
   categories: EventCategory[]
   bundles: Bundle[]
 }
@@ -23,11 +30,35 @@ const ROW_HEIGHT = 50
 const HEADER_HEIGHT = 60
 
 export function CalendarTimeline({ events, categories, bundles }: CalendarTimelineProps) {
+const { toggleEvent, isSelected } = useEventSelection()
+
+function isOverlappingSelected(event: CalendarEventWithMeta) {
+  return events.some(e =>
+    e.id !== event.id &&
+    isSelected(e.id) &&
+    e.start_day <= event.end_day &&
+    e.end_day >= event.start_day
+  )
+}
+
+function hasSharedTag(event: CalendarEventWithMeta, tag: string) {
+  return (
+    event.tags?.includes(tag as any) &&
+    events.some(e =>
+      e.id !== event.id &&
+      isSelected(e.id) &&
+      e.tags?.includes(tag as any) &&
+      e.start_day <= event.end_day &&
+      e.end_day >= event.start_day
+    )
+  )
+}
+
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
     new Set(categories.map(c => c.id))
   )
   const [showBundles, setShowBundles] = useState(true)
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEventWithMeta | null>(null)
   const [kingdomStartDate, setKingdomStartDate] = useState<string>('')
   const [firstCaoWheelDate, setFirstCaoWheelDate] = useState<string>('') // YYYY-MM-DD (UTC)
 
@@ -177,7 +208,7 @@ const filteredEvents = [...events, ...wheelEvents].filter(event =>
       return () => container.removeEventListener('scroll', handleScroll)
     }
   }, [])
-  
+
   const getCategoryColor = (categoryId: string | null) => {
     
 
@@ -388,12 +419,21 @@ const filteredEvents = [...events, ...wheelEvents].filter(event =>
                 return (
                   <div
                     key={event.id}
-                    className="
-  absolute rounded-md cursor-pointer
-  transition-all duration-200 ease-out
-  hover:scale-[1.03]
-  hover:shadow-[0_8px_24px_rgba(0,0,0,0.45)]
-"
+                    className={cn(
+  "absolute rounded-md cursor-pointer transition-all duration-200 ease-out",
+  "hover:scale-[1.03] hover:shadow-[0_8px_24px_rgba(0,0,0,0.45)]",
+
+  isSelected(event.id) &&
+    "ring-4 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.8)]",
+
+  isSelected(event.id) &&
+    isOverlappingSelected(event) &&
+    "ring-4 ring-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.9)]",
+
+  hasSharedTag(event, 'TRAINING_POINTS') &&
+    "ring-4 ring-red-500 shadow-[0_0_35px_rgba(239,68,68,0.95)]"
+)}
+
                     style={{
                       left,
                       top,
@@ -402,13 +442,19 @@ const filteredEvents = [...events, ...wheelEvents].filter(event =>
                       backgroundColor: color,
                       marginLeft: 2
                     }}
-                    onClick={() => setSelectedEvent(event)}
+                    onClick={() => toggleEvent(event)}
                   >
-                    <div className="px-2 py-1 h-full flex items-center overflow-hidden">
-                      <span className="text-xs font-medium text-white truncate drop-shadow-sm">
-                        {event.name}
-                      </span>
-                    </div>
+<div className="px-2 py-1 h-full flex flex-col justify-center overflow-hidden">
+  <span className="text-xs font-medium text-white truncate drop-shadow-sm">
+    {event.name}
+  </span>
+
+  {hasSharedTag(event, 'TRAINING_POINTS') && (
+    <span className="mt-0.5 text-[10px] font-semibold text-red-200 drop-shadow">
+      🔥 Optimal Training Window
+    </span>
+  )}
+</div>
                   </div>
                 )
               })}
@@ -485,6 +531,9 @@ const filteredEvents = [...events, ...wheelEvents].filter(event =>
 )}
 
       </div>
+<div className="mt-4">
+  <RewardsSummary events={events.filter(e => isSelected(e.id))} />
+</div>
 
       {/* Legend */}
       <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">

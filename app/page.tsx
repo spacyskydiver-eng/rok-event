@@ -70,7 +70,7 @@ const [
     events={events}
     categories={categories}
     bundles={bundles.filter(b => b.show_on_calendar)}
-    kingdomSettings={kingdomSettings}
+    
   />
 </div>
 

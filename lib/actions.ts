@@ -2,7 +2,18 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidateTag } from 'next/cache'
-import type { CalendarEvent, EventCategory, WhitelistUser, UserPermissions, Bundle, BundleWithDetails, BundleTier, BundleTierColumn, BundleTierCell } from '@/lib/types'
+import type {
+  CalendarEvent,
+  CalendarEventWithMeta,
+  EventCategory,
+  WhitelistUser,
+  UserPermissions,
+  Bundle,
+  BundleWithDetails,
+  BundleTier,
+  BundleTierColumn,
+  BundleTierCell
+} from '@/lib/types'
 
 export async function getUserPermissions(): Promise<UserPermissions> {
   const supabase = await createClient()
@@ -29,7 +40,7 @@ export async function getUserPermissions(): Promise<UserPermissions> {
   }
 }
 
-export async function getEvents(): Promise<CalendarEvent[]> {
+export async function getEvents(): Promise<CalendarEventWithMeta[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('events')
@@ -41,8 +52,13 @@ export async function getEvents(): Promise<CalendarEvent[]> {
     return []
   }
 
-  return data || []
+return (data || []).map(event => ({
+  ...event,
+  rewards: undefined,
+  tags: Array.isArray((event as any).tags) ? (event as any).tags : []
+}))
 }
+
 
 export async function getCategories(): Promise<EventCategory[]> {
   const supabase = await createClient()
@@ -72,6 +88,7 @@ export async function createEvent(formData: FormData): Promise<{ success: boolea
   const endDay = parseInt(formData.get('end_day') as string)
   const categoryId = formData.get('category_id') as string | null
   const description = formData.get('description') as string | null
+  const tags = formData.getAll('tags') as string[]
 
   if (!name || !startDay || !endDay) {
     return { success: false, error: 'Missing required fields' }
@@ -87,6 +104,7 @@ export async function createEvent(formData: FormData): Promise<{ success: boolea
     end_day: endDay,
     category_id: categoryId || null,
     description: description || null,
+    tags: tags.length ? tags : null,
     created_by: user.id
   })
 
@@ -112,6 +130,7 @@ export async function updateEvent(eventId: string, formData: FormData): Promise<
   const endDay = parseInt(formData.get('end_day') as string)
   const categoryId = formData.get('category_id') as string | null
   const description = formData.get('description') as string | null
+  const tags = formData.getAll('tags') as string[]
 
   if (!name || !startDay || !endDay) {
     return { success: false, error: 'Missing required fields' }
@@ -129,6 +148,7 @@ export async function updateEvent(eventId: string, formData: FormData): Promise<
       end_day: endDay,
       category_id: categoryId || null,
       description: description || null,
+      tags: tags.length ? tags : null,
       updated_at: new Date().toISOString()
     })
     .eq('id', eventId)

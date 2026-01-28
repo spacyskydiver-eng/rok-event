@@ -258,6 +258,42 @@ export function AdminPanel({ events, categories, whitelist, permissions }: Admin
                         defaultValue={editingEvent?.description || ''}
                       />
                     </div>
+                    <div className="space-y-2">
+  <Label>Event Tags</Label>
+
+  <div className="flex flex-col gap-1 text-sm">
+    <label className="flex items-center gap-2">
+      <input
+        type="checkbox"
+        name="tags"
+        value="TRAINING_POINTS"
+        defaultChecked={editingEvent?.tags?.includes('TRAINING_POINTS')}
+      />
+      Training (MGE / Troops / Power)
+    </label>
+
+    <label className="flex items-center gap-2">
+      <input
+        type="checkbox"
+        name="tags"
+        value="BUILDING_POINTS"
+        defaultChecked={editingEvent?.tags?.includes('BUILDING_POINTS')}
+      />
+      Building
+    </label>
+
+    <label className="flex items-center gap-2">
+      <input
+        type="checkbox"
+        name="tags"
+        value="RESEARCH_POINTS"
+        defaultChecked={editingEvent?.tags?.includes('RESEARCH_POINTS')}
+      />
+      Research
+    </label>
+  </div>
+</div>
+
                     <DialogFooter>
                       <Button type="submit" disabled={isLoading}>
                         {isLoading ? 'Saving...' : editingEvent ? 'Update' : 'Create'}
