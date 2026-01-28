@@ -21,13 +21,22 @@ function sumRewards(events: CalendarEventWithMeta[]): Record<string, number> {
 export default function RewardsSummary({ events }: Props) {
   const totals = sumRewards(events)
 
-  if (Object.keys(totals).length === 0) {
-    return (
-      <div className="p-4 text-sm text-gray-400">
-        No rewards selected
-      </div>
-    )
-  }
+if (events.length === 0) {
+  return (
+    <div className="p-4 text-sm text-gray-400">
+      Select events to see a combined rewards summary.
+    </div>
+  )
+}
+
+if (Object.keys(totals).length === 0) {
+  return (
+    <div className="p-4 text-sm text-gray-400">
+      No rewards are attached to these events yet.
+    </div>
+  )
+}
+
 
   return (
     <div className="p-4 border rounded bg-black/40">
