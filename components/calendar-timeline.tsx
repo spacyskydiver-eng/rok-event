@@ -25,39 +25,42 @@ interface CalendarTimelineProps {
 
 
 const TOTAL_DAYS = 130
+const OPTIMAL_INDICATORS = {
+  TRAINING_POINTS: {
+    label: 'Training',
+    color: 'bg-red-500',
+    icon: '⚔️',
+  },
+  BUILDING_POINTS: {
+    label: 'Building',
+    color: 'bg-blue-500',
+    icon: '🏗️',
+  },
+  RESEARCH_POINTS: {
+    label: 'Research',
+    color: 'bg-purple-500',
+    icon: '📜',
+  },
+} as const
 const DAY_WIDTH = 56
 const ROW_HEIGHT = 50
 const HEADER_HEIGHT = 60
 
+
 export function CalendarTimeline({ events, categories, bundles }: CalendarTimelineProps) {
 const { toggleEvent, isSelected } = useEventSelection()
+const [activeDayInfo, setActiveDayInfo] = useState<{
+  day: number
+  events: CalendarEventWithMeta[]
+} | null>(null)
 
-function isOverlappingSelected(event: CalendarEventWithMeta) {
-  return events.some(e =>
-    e.id !== event.id &&
-    isSelected(e.id) &&
-    e.start_day <= event.end_day &&
-    e.end_day >= event.start_day
-  )
-}
 
-function hasSharedTag(event: CalendarEventWithMeta, tag: string) {
-  return (
-    event.tags?.includes(tag as any) &&
-    events.some(e =>
-      e.id !== event.id &&
-      isSelected(e.id) &&
-      e.tags?.includes(tag as any) &&
-      e.start_day <= event.end_day &&
-      e.end_day >= event.start_day
-    )
-  )
-}
 
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
     new Set(categories.map(c => c.id))
   )
   const [showBundles, setShowBundles] = useState(true)
+  const [showOptimal, setShowOptimal] = useState(true)
   const [selectedEvent, setSelectedEvent] = useState<CalendarEventWithMeta | null>(null)
   const [kingdomStartDate, setKingdomStartDate] = useState<string>('')
   const [firstCaoWheelDate, setFirstCaoWheelDate] = useState<string>('') // YYYY-MM-DD (UTC)
@@ -135,9 +138,40 @@ const wheelEvents: CalendarEvent[] = (() => {
 
 
 
-const filteredEvents = [...events, ...wheelEvents].filter(event =>
-  !event.category_id || selectedCategories.has(event.category_id)
+// ===== Optimal Training Days (auto-detected) =====
+const optimalDays: Record<
+  number,
+  { tag: keyof typeof OPTIMAL_INDICATORS; events: CalendarEventWithMeta[] }[]
+> = {}
+
+for (const tag of Object.keys(OPTIMAL_INDICATORS) as (keyof typeof OPTIMAL_INDICATORS)[]) {
+  const taggedEvents = events.filter(e => e.tags?.includes(tag))
+
+  for (let i = 0; i < taggedEvents.length; i++) {
+    for (let j = i + 1; j < taggedEvents.length; j++) {
+      const a = taggedEvents[i]
+      const b = taggedEvents[j]
+
+      const start = Math.max(a.start_day, b.start_day)
+      const end = Math.min(a.end_day, b.end_day)
+
+      if (start <= end) {
+        for (let day = start; day <= end; day++) {
+          if (!optimalDays[day]) optimalDays[day] = []
+          optimalDays[day].push({ tag, events: [a, b] })
+        }
+      }
+    }
+  }
+}
+
+
+
+// ===== Filtered Events =====
+const filteredEvents = [...events, ...wheelEvents].filter(
+  event => !event.category_id || selectedCategories.has(event.category_id)
 )
+
 
 
 
@@ -290,6 +324,14 @@ const filteredEvents = [...events, ...wheelEvents].filter(event =>
 >
   🛒 Bundles
 </Button>
+<Button
+  variant={showOptimal ? "default" : "outline"}
+  size="sm"
+  onClick={() => setShowOptimal(prev => !prev)}
+  className="text-xs"
+>
+  ⭐ Optimal
+</Button>
         {categories.map(category => (
           <button
             key={category.id}
@@ -375,6 +417,31 @@ const filteredEvents = [...events, ...wheelEvents].filter(event =>
   </span>
 )}
                     <span className="text-muted-foreground text-[10px]">Day</span>
+                    {showOptimal && optimalDays[day] && (
+  <div className="mt-1 flex gap-1">
+    {optimalDays[day].map((opt, i) => {
+      const cfg = OPTIMAL_INDICATORS[opt.tag]
+      return (
+        <button
+          key={i}
+          onClick={() =>
+            setActiveDayInfo({
+              day,
+              events: opt.events,
+            })
+          }
+          className={cn(
+            "w-5 h-5 rounded-full flex items-center justify-center text-white text-[11px] shadow-md",
+            cfg.color
+          )}
+        >
+          {cfg.icon}
+        </button>
+      )
+    })}
+  </div>
+)}
+
                   </div>
                 )
               })}
@@ -408,85 +475,35 @@ const filteredEvents = [...events, ...wheelEvents].filter(event =>
                 })}
               </div>
 
-              {/* Event Bars */}
+{/* Event Bars */}
 {rows.map(({ event, row }) => {
   const left = (event.start_day - 1) * DAY_WIDTH
   const width = (event.end_day - event.start_day + 1) * DAY_WIDTH
   const top = row * ROW_HEIGHT + 10
   const color = getCategoryColor(event.category_id)
 
-  // Find ONE selected event that overlaps this event (if any)
-  const overlapEvent = events.find(
-    (e) =>
-      e.id !== event.id &&
-      isSelected(e.id) &&
-      e.start_day <= event.end_day &&
-      e.end_day >= event.start_day
-  )
-
-  const overlapStart = overlapEvent
-    ? Math.max(event.start_day, overlapEvent.start_day)
-    : null
-
-  const overlapEnd = overlapEvent
-    ? Math.min(event.end_day, overlapEvent.end_day)
-    : null
-
-  // Only show training-red when THIS event is selected AND it overlaps a selected event AND it shares the tag
-  const showTrainingOverlap =
-    isSelected(event.id) &&
-    !!overlapStart &&
-    !!overlapEnd &&
-    hasSharedTag(event as any, "TRAINING_POINTS")
-
   return (
     <div
       key={event.id}
       className={cn(
-        "absolute rounded-md cursor-pointer overflow-hidden",
-        "transition-all duration-200 ease-out",
-        "hover:scale-[1.03] hover:shadow-[0_8px_24px_rgba(0,0,0,0.45)]",
-
-        // GREEN glow when selected
+        "absolute rounded-md cursor-pointer transition-all duration-200",
         isSelected(event.id) &&
-          "ring-4 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.8)]",
-
-        // RED glow when selected + training overlap
-        showTrainingOverlap &&
-          "ring-4 ring-red-500 shadow-[0_0_35px_rgba(239,68,68,0.95)]"
+          "ring-4 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.8)]"
       )}
       style={{
         left,
         top,
         width: width - 4,
         height: ROW_HEIGHT - 8,
-        marginLeft: 2,
         backgroundColor: color,
+        marginLeft: 2
       }}
-      onClick={() => toggleEvent(event as any)}
+      onClick={() => toggleEvent(event)}
     >
-      {/* Overlap RED segment (ONLY the overlapping days) */}
-      {showTrainingOverlap && overlapStart && overlapEnd && (
-        <div
-          className="absolute top-0 h-full bg-red-500/60 animate-pulse"
-          style={{
-            left: (overlapStart - event.start_day) * DAY_WIDTH,
-            width: (overlapEnd - overlapStart + 1) * DAY_WIDTH,
-          }}
-        />
-      )}
-
-      {/* Text layer */}
-      <div className="relative z-10 px-2 py-1 h-full flex flex-col justify-center overflow-hidden">
-        <span className="text-xs font-medium text-white truncate drop-shadow-sm">
+      <div className="px-2 py-1 h-full flex items-center overflow-hidden">
+        <span className="text-xs font-medium text-white truncate">
           {event.name}
         </span>
-
-        {showTrainingOverlap && (
-          <span className="mt-0.5 text-[10px] font-semibold text-red-200 drop-shadow">
-            🔥 Optimal Training Window
-          </span>
-        )}
       </div>
     </div>
   )
@@ -575,6 +592,40 @@ const filteredEvents = [...events, ...wheelEvents].filter(event =>
         <span>Showing {filteredEvents.length} of {events.length} events</span>
         <span>Scroll or use arrows to navigate the timeline</span>
       </div>
+      {activeDayInfo && (
+  <div
+    className="fixed inset-0 z-50"
+    onClick={() => setActiveDayInfo(null)}
+  >
+    <div
+      className="absolute bg-card border border-border rounded-lg shadow-xl p-4 text-sm"
+      style={{
+        top: '120px',
+        left: `${activeDayInfo.day * DAY_WIDTH}px`
+      }}
+      onClick={e => e.stopPropagation()}
+    >
+      <div className="font-semibold mb-2 flex items-center gap-2">
+        ⭐ Optimal Window
+      </div>
+
+      <div className="text-xs text-muted-foreground mb-2">
+        Day {activeDayInfo.day}
+      </div>
+
+      <ul className="space-y-1">
+        {Array.from(
+          new Map(activeDayInfo.events.map(e => [e.id, e])).values()
+        ).map(e => (
+          <li key={e.id} className="text-xs">
+            • {e.name}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+)}
+
     </div>
   )
 }
