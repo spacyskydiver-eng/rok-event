@@ -410,8 +410,14 @@ const filteredEvents = [...events, ...wheelEvents].filter(event =>
 
               {/* Event Bars */}
 {rows.map(({ event, row }) => {
+  const left = (event.start_day - 1) * DAY_WIDTH
+  const width = (event.end_day - event.start_day + 1) * DAY_WIDTH
+  const top = row * ROW_HEIGHT + 10
+  const color = getCategoryColor(event.category_id)
+
+  // Find ONE selected event that overlaps this event (if any)
   const overlapEvent = events.find(
-    e =>
+    (e) =>
       e.id !== event.id &&
       isSelected(e.id) &&
       e.start_day <= event.end_day &&
@@ -426,76 +432,66 @@ const filteredEvents = [...events, ...wheelEvents].filter(event =>
     ? Math.min(event.end_day, overlapEvent.end_day)
     : null
 
-  const left = (event.start_day - 1) * DAY_WIDTH
-  const width = (event.end_day - event.start_day + 1) * DAY_WIDTH
-  const top = row * ROW_HEIGHT + 10
-  const color = getCategoryColor(event.category_id)
+  // Only show training-red when THIS event is selected AND it overlaps a selected event AND it shares the tag
+  const showTrainingOverlap =
+    isSelected(event.id) &&
+    !!overlapStart &&
+    !!overlapEnd &&
+    hasSharedTag(event as any, "TRAINING_POINTS")
 
   return (
     <div
       key={event.id}
-      className="absolute cursor-pointer"
+      className={cn(
+        "absolute rounded-md cursor-pointer overflow-hidden",
+        "transition-all duration-200 ease-out",
+        "hover:scale-[1.03] hover:shadow-[0_8px_24px_rgba(0,0,0,0.45)]",
+
+        // GREEN glow when selected
+        isSelected(event.id) &&
+          "ring-4 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.8)]",
+
+        // RED glow when selected + training overlap
+        showTrainingOverlap &&
+          "ring-4 ring-red-500 shadow-[0_0_35px_rgba(239,68,68,0.95)]"
+      )}
       style={{
         left,
         top,
         width: width - 4,
         height: ROW_HEIGHT - 8,
-        marginLeft: 2
+        marginLeft: 2,
+        backgroundColor: color,
       }}
-      onClick={() => toggleEvent(event)}
+      onClick={() => toggleEvent(event as any)}
     >
-      <div className="relative w-full h-full overflow-hidden rounded-md">
+      {/* Overlap RED segment (ONLY the overlapping days) */}
+      {showTrainingOverlap && overlapStart && overlapEnd && (
+        <div
+          className="absolute top-0 h-full bg-red-500/60 animate-pulse"
+          style={{
+            left: (overlapStart - event.start_day) * DAY_WIDTH,
+            width: (overlapEnd - overlapStart + 1) * DAY_WIDTH,
+          }}
+        />
+      )}
 
-        {/* Before overlap */}
-        {overlapStart && overlapStart > event.start_day && (
-          <div
-            className="absolute top-0 left-0 h-full"
-            style={{
-              width: (overlapStart - event.start_day) * DAY_WIDTH,
-              backgroundColor: color
-            }}
-          />
-        )}
+      {/* Text layer */}
+      <div className="relative z-10 px-2 py-1 h-full flex flex-col justify-center overflow-hidden">
+        <span className="text-xs font-medium text-white truncate drop-shadow-sm">
+          {event.name}
+        </span>
 
-        {/* Overlap (RED) */}
-        {overlapStart && overlapEnd && (
-          <div
-            className="absolute top-0 h-full bg-red-500"
-            style={{
-              left: (overlapStart - event.start_day) * DAY_WIDTH,
-              width: (overlapEnd - overlapStart + 1) * DAY_WIDTH
-            }}
-          />
-        )}
-
-        {/* After overlap */}
-        {overlapEnd && overlapEnd < event.end_day && (
-          <div
-            className="absolute top-0 h-full"
-            style={{
-              left: (overlapEnd - event.start_day + 1) * DAY_WIDTH,
-              width: (event.end_day - overlapEnd) * DAY_WIDTH,
-              backgroundColor: color
-            }}
-          />
-        )}
-
-        <div className="relative z-10 px-2 py-1 h-full flex flex-col justify-center">
-          <span className="text-xs font-medium text-white truncate">
-            {event.name}
+        {showTrainingOverlap && (
+          <span className="mt-0.5 text-[10px] font-semibold text-red-200 drop-shadow">
+            🔥 Optimal Training Window
           </span>
-
-          {hasSharedTag(event, 'TRAINING_POINTS') && overlapStart && (
-            <span className="text-[10px] font-semibold text-red-200">
-              🔥 Optimal Training Window
-            </span>
-          )}
-        </div>
-
+        )}
       </div>
     </div>
   )
 })}
+
 
               {/* Bundle Bars */}
 {showBundles && bundles.map((bundle, index) => {
