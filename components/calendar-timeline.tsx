@@ -75,6 +75,7 @@ const day1Based = Math.round((adjustedMs - kingdomStartMs) / 86400000) + 1
 
   if (day1Based < 1 || day1Based > TOTAL_DAYS) return []
 
+  
   const names = [
     "Wheel of Fortune (Cao Cao)",
     "Wheel of Fortune (Richard)",
