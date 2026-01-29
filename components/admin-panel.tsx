@@ -123,11 +123,12 @@ export function AdminPanel({ events, categories, whitelist, permissions }: Admin
       setEditingEvent(null)
       router.refresh()
     } else {
-      toast({
-        title: 'Error',
-        description: result.error || 'Something went wrong',
-        variant: 'destructive'
-      })
+toast({
+  title: 'Error',
+  description: String(result.error ?? 'Unknown error'),
+  variant: 'destructive'
+})
+
     }
 
     setIsLoading(false)
@@ -141,7 +142,12 @@ export function AdminPanel({ events, categories, whitelist, permissions }: Admin
       toast({ title: 'Event deleted' })
       router.refresh()
     } else {
-      toast({ title: 'Error', description: result.error || 'Failed to delete event', variant: 'destructive' })
+      toast({
+  title: 'Error',
+  description: String(result.error ?? 'Unknown error'),
+  variant: 'destructive'
+})
+
     }
   }
 
@@ -162,7 +168,12 @@ if (formData.get('category_id') === 'none') {
       setIsCategoryDialogOpen(false)
       router.refresh()
     } else {
-      toast({ title: 'Error', description: result.error || 'Something went wrong', variant: 'destructive' })
+      toast({
+  title: 'Error',
+  description: String(result.error ?? 'Unknown error'),
+  variant: 'destructive'
+})
+
     }
 
     setIsLoading(false)
@@ -176,7 +187,12 @@ if (formData.get('category_id') === 'none') {
       toast({ title: 'Category deleted' })
       router.refresh()
     } else {
-      toast({ title: 'Error', description: result.error || 'Failed to delete category', variant: 'destructive' })
+      toast({
+  title: 'Error',
+  description: String(result.error ?? 'Unknown error'),
+  variant: 'destructive'
+})
+
     }
   }
 
@@ -192,7 +208,12 @@ if (formData.get('category_id') === 'none') {
       setIsWhitelistDialogOpen(false)
       router.refresh()
     } else {
-      toast({ title: 'Error', description: result.error || 'Something went wrong', variant: 'destructive' })
+      toast({
+  title: 'Error',
+  description: String(result.error ?? 'Unknown error'),
+  variant: 'destructive'
+})
+
     }
 
     setIsLoading(false)
@@ -206,7 +227,12 @@ if (formData.get('category_id') === 'none') {
       toast({ title: 'User removed from whitelist' })
       router.refresh()
     } else {
-      toast({ title: 'Error', description: result.error || 'Failed to remove user', variant: 'destructive' })
+      toast({
+  title: 'Error',
+  description: String(result.error ?? 'Unknown error'),
+  variant: 'destructive'
+})
+
     }
   }
 
