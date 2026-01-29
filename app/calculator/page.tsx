@@ -11,8 +11,8 @@ import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { SaveNotice } from '@/components/save-notice'
-
-
+import { useUserState } from '@/lib/user-state'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 type Speedups = {
   universal: number
@@ -34,8 +34,6 @@ function clampNum(n: unknown) {
 }
 
 function utcDayNumberFromStart(startDateYYYYMMDD: string) {
-  // startDateYYYYMMDD: "YYYY-MM-DD"
-  // Day 1 = start date
   const [y, m, d] = startDateYYYYMMDD.split('-').map(Number)
   const start = Date.UTC(y, m - 1, d, 0, 0, 0)
   const now = Date.now()
@@ -46,8 +44,6 @@ function utcDayNumberFromStart(startDateYYYYMMDD: string) {
 function aggregateEventRewards(events: any[]) {
   const speedups: Speedups = { universal: 0, building: 0, research: 0, training: 0 }
   const resources: Resources = { food: 0, wood: 0, stone: 0, gold: 0 }
-
-  // Keep everything else too (gems, keys, sculptures, etc.)
   const other: Record<string, number> = {}
 
   for (const e of events) {
@@ -55,19 +51,14 @@ function aggregateEventRewards(events: any[]) {
       const amt = clampNum(item.amount)
       const t = String(item.type || '')
 
-      // Speedups (minutes)
       if (t === 'speedup_universal_minutes') speedups.universal += amt
       else if (t === 'speedup_building_minutes') speedups.building += amt
       else if (t === 'speedup_research_minutes') speedups.research += amt
       else if (t === 'speedup_training_minutes') speedups.training += amt
-
-      // Resources
       else if (t === 'resource_food') resources.food += amt
       else if (t === 'resource_wood') resources.wood += amt
       else if (t === 'resource_stone') resources.stone += amt
       else if (t === 'resource_gold') resources.gold += amt
-
-      // Other rewards (still counted, just not applied into inv fields)
       else other[t] = (other[t] ?? 0) + amt
     }
   }
@@ -76,84 +67,95 @@ function aggregateEventRewards(events: any[]) {
 }
 
 export default function CalculatorPage() {
-
+  // Selected events (from calendar selection store)
   const selectedEvents = useSelectedEvents(s => s.events)
-  
   const prunePastEvents = useSelectedEvents(s => s.prunePastEvents)
+
+  // ✅ Shared persisted state (works signed out via localStorage)
+  const {
+    kingdomStartDate,
+    speedups,
+    resources,
+    setKingdomStartDate,
+    setSpeedups,
+    setResources,
+  } = useUserState()
 
   const [includeEventRewards, setIncludeEventRewards] = useState(true)
 
-  const [speedups, setSpeedups] = useState<Speedups>({
-    universal: 0,
-    building: 0,
-    research: 0,
-    training: 0,
-  })
-
-  const [resources, setResources] = useState<Resources>({
-    food: 0,
-    wood: 0,
-    stone: 0,
-    gold: 0,
-  })
-
-  const [kingdomStartDate, setKingdomStartDate] = useState<string | null>(null)
-  const [currentDay, setCurrentDay] = useState<number | null>(null)
-
+  // Signed-in detection: if Supabase inventory exists, we consider user signed in.
   const [isSignedIn, setIsSignedIn] = useState(false)
   const [saving, setSaving] = useState(false)
 
-  // Load Kingdom Start Date + Calculator Inventory (if signed in)
+  // Gate dialog for non-signed in users
+  const [showSignInGate, setShowSignInGate] = useState(false)
+
+  // Current day derived from kingdomStartDate
+  const [currentDay, setCurrentDay] = useState<number | null>(null)
+
+  // 1) Keep currentDay in sync + prune past events whenever kingdomStartDate changes (SIGNED IN OR OUT)
+  useEffect(() => {
+    if (!kingdomStartDate) {
+      setCurrentDay(null)
+      return
+    }
+    const day = utcDayNumberFromStart(kingdomStartDate)
+    setCurrentDay(day)
+    prunePastEvents(day)
+  }, [kingdomStartDate, prunePastEvents])
+
+  // 2) Signed-in boot: hydrate state from Supabase ONLY if user is signed in.
+  //    If signed out, this returns null and we keep local state.
   useEffect(() => {
     let cancelled = false
 
-    async function boot() {
+    async function bootSignedIn() {
       try {
-        const ks = await getKingdomSettings()
-        if (cancelled) return
-
-        const start = ks?.kingdom_start_date ?? null
-        setKingdomStartDate(start)
-
-        if (start) {
-          const day = utcDayNumberFromStart(start)
-          setCurrentDay(day)
-          // ✅ auto-remove passed events from selection
-          prunePastEvents(day)
-        } else {
-          setCurrentDay(null)
-        }
-
         const inv = await getCalculatorInventory()
         if (cancelled) return
 
-        if (inv) {
-          setIsSignedIn(true)
-          setSpeedups({
-            universal: clampNum(inv.speed_universal_minutes),
-            building: clampNum(inv.speed_building_minutes),
-            research: clampNum(inv.speed_research_minutes),
-            training: clampNum(inv.speed_training_minutes),
-          })
-          setResources({
-            food: clampNum(inv.resource_food),
-            wood: clampNum(inv.resource_wood),
-            stone: clampNum(inv.resource_stone),
-            gold: clampNum(inv.resource_gold),
-          })
-        } else {
+        if (!inv) {
           setIsSignedIn(false)
+          return
         }
+
+        setIsSignedIn(true)
+
+        // Pull kingdom settings too (only when signed in)
+        const ks = await getKingdomSettings()
+        if (cancelled) return
+
+        const serverStart = ks?.kingdom_start_date ?? null
+        // Only overwrite local if server has a value (avoid nuking local unsigned data)
+        if (serverStart) setKingdomStartDate(serverStart)
+
+        // Hydrate calculator inventory
+        setSpeedups({
+          universal: clampNum(inv.speed_universal_minutes),
+          building: clampNum(inv.speed_building_minutes),
+          research: clampNum(inv.speed_research_minutes),
+          training: clampNum(inv.speed_training_minutes),
+        })
+
+        setResources({
+          food: clampNum(inv.resource_food),
+          wood: clampNum(inv.resource_wood),
+          stone: clampNum(inv.resource_stone),
+          gold: clampNum(inv.resource_gold),
+        })
       } catch (e) {
         console.error('Calculator boot error:', e)
+        setIsSignedIn(false)
       }
     }
 
-    boot()
-    return () => { cancelled = true }
-  }, [prunePastEvents])
+    bootSignedIn()
+    return () => {
+      cancelled = true
+    }
+  }, [setKingdomStartDate, setSpeedups, setResources])
 
-  // Use selected events, but ignore past ones if we have a current day
+  // Eligible selected events (ignore already-ended ones when we know current day)
   const eligibleSelectedEvents = useMemo(() => {
     if (!currentDay) return selectedEvents
     return selectedEvents.filter(e => (e.end_day ?? 0) >= currentDay)
@@ -183,11 +185,11 @@ export default function CalculatorPage() {
         wood: baseRes.wood + eventRewards.resources.wood,
         stone: baseRes.stone + eventRewards.resources.stone,
         gold: baseRes.gold + eventRewards.resources.gold,
-      }
+      },
     }
   }, [speedups, resources, includeEventRewards, eventRewards])
 
-  // Auto-save inventory when signed in (debounced-ish)
+  // 3) Auto-save to Supabase when signed in (local always persists regardless)
   useEffect(() => {
     if (!isSignedIn) return
 
@@ -214,13 +216,26 @@ export default function CalculatorPage() {
     return () => clearTimeout(t)
   }, [isSignedIn, speedups, resources])
 
-return (
-  <div className="max-w-5xl mx-auto p-6 space-y-6">
-    {!isSignedIn && (
-      <div className="mb-6">
-        <SaveNotice />
-      </div>
-    )}
+  const onCalculateGoalsClick = () => {
+    // This is the “locked” feature gate you asked for.
+    if (!isSignedIn) {
+      setShowSignInGate(true)
+      return
+    }
+    // Later: route to goals section / enable calculation.
+    // For now keep it clean:
+    alert('Goals calculator is next — you are signed in, so you’ll get access when it goes live.')
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto p-6 space-y-6">
+      {/* Notice for signed-out users */}
+      {!isSignedIn && (
+        <div className="mb-2">
+          <SaveNotice />
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <Link
           href="/"
@@ -244,8 +259,14 @@ return (
 
         {kingdomStartDate ? (
           <p className="text-xs text-muted-foreground">
-            Kingdom Start Date: <span className="text-foreground">{kingdomStartDate}</span>
-            {currentDay ? <> • Today is <span className="text-foreground">Day {currentDay}</span></> : null}
+            Kingdom Start Date:{' '}
+            <span className="text-foreground">{kingdomStartDate}</span>
+            {currentDay ? (
+              <>
+                {' '}
+                • Today is <span className="text-foreground">Day {currentDay}</span>
+              </>
+            ) : null}
           </p>
         ) : (
           <p className="text-xs text-muted-foreground">
@@ -270,7 +291,7 @@ return (
                 <Input
                   type="number"
                   value={speedups.universal}
-                  onChange={e => setSpeedups(s => ({ ...s, universal: clampNum(e.target.value) }))}
+                  onChange={e => setSpeedups({ universal: clampNum(e.target.value) })}
                 />
               </div>
 
@@ -279,7 +300,7 @@ return (
                 <Input
                   type="number"
                   value={speedups.building}
-                  onChange={e => setSpeedups(s => ({ ...s, building: clampNum(e.target.value) }))}
+                  onChange={e => setSpeedups({ building: clampNum(e.target.value) })}
                 />
               </div>
 
@@ -288,7 +309,7 @@ return (
                 <Input
                   type="number"
                   value={speedups.research}
-                  onChange={e => setSpeedups(s => ({ ...s, research: clampNum(e.target.value) }))}
+                  onChange={e => setSpeedups({ research: clampNum(e.target.value) })}
                 />
               </div>
 
@@ -297,7 +318,7 @@ return (
                 <Input
                   type="number"
                   value={speedups.training}
-                  onChange={e => setSpeedups(s => ({ ...s, training: clampNum(e.target.value) }))}
+                  onChange={e => setSpeedups({ training: clampNum(e.target.value) })}
                 />
               </div>
             </div>
@@ -312,7 +333,7 @@ return (
                 <Input
                   type="number"
                   value={resources.food}
-                  onChange={e => setResources(r => ({ ...r, food: clampNum(e.target.value) }))}
+                  onChange={e => setResources({ food: clampNum(e.target.value) })}
                 />
               </div>
 
@@ -321,7 +342,7 @@ return (
                 <Input
                   type="number"
                   value={resources.wood}
-                  onChange={e => setResources(r => ({ ...r, wood: clampNum(e.target.value) }))}
+                  onChange={e => setResources({ wood: clampNum(e.target.value) })}
                 />
               </div>
 
@@ -330,7 +351,7 @@ return (
                 <Input
                   type="number"
                   value={resources.stone}
-                  onChange={e => setResources(r => ({ ...r, stone: clampNum(e.target.value) }))}
+                  onChange={e => setResources({ stone: clampNum(e.target.value) })}
                 />
               </div>
 
@@ -339,7 +360,7 @@ return (
                 <Input
                   type="number"
                   value={resources.gold}
-                  onChange={e => setResources(r => ({ ...r, gold: clampNum(e.target.value) }))}
+                  onChange={e => setResources({ gold: clampNum(e.target.value) })}
                 />
               </div>
             </div>
@@ -362,7 +383,6 @@ return (
           {includeEventRewards && (
             <div className="space-y-4">
               <RewardsSummary events={eligibleSelectedEvents as any} />
-
               <div className="text-xs text-muted-foreground">
                 {currentDay
                   ? `Events ending before Day ${currentDay} are automatically ignored.`
@@ -381,25 +401,76 @@ return (
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
           <div className="space-y-2">
             <div className="font-medium text-muted-foreground">Speedups (minutes)</div>
-            <div className="flex justify-between"><span>Universal</span><span>{effectiveTotals.speedups.universal.toLocaleString()}</span></div>
-            <div className="flex justify-between"><span>Building</span><span>{effectiveTotals.speedups.building.toLocaleString()}</span></div>
-            <div className="flex justify-between"><span>Research</span><span>{effectiveTotals.speedups.research.toLocaleString()}</span></div>
-            <div className="flex justify-between"><span>Training</span><span>{effectiveTotals.speedups.training.toLocaleString()}</span></div>
+            <div className="flex justify-between">
+              <span>Universal</span>
+              <span>{effectiveTotals.speedups.universal.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Building</span>
+              <span>{effectiveTotals.speedups.building.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Research</span>
+              <span>{effectiveTotals.speedups.research.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Training</span>
+              <span>{effectiveTotals.speedups.training.toLocaleString()}</span>
+            </div>
           </div>
 
           <div className="space-y-2">
             <div className="font-medium text-muted-foreground">Resources</div>
-            <div className="flex justify-between"><span>Food</span><span>{effectiveTotals.resources.food.toLocaleString()}</span></div>
-            <div className="flex justify-between"><span>Wood</span><span>{effectiveTotals.resources.wood.toLocaleString()}</span></div>
-            <div className="flex justify-between"><span>Stone</span><span>{effectiveTotals.resources.stone.toLocaleString()}</span></div>
-            <div className="flex justify-between"><span>Gold</span><span>{effectiveTotals.resources.gold.toLocaleString()}</span></div>
+            <div className="flex justify-between">
+              <span>Food</span>
+              <span>{effectiveTotals.resources.food.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Wood</span>
+              <span>{effectiveTotals.resources.wood.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Stone</span>
+              <span>{effectiveTotals.resources.stone.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Gold</span>
+              <span>{effectiveTotals.resources.gold.toLocaleString()}</span>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <Button disabled className="opacity-70">
-        Calculate Goals (next step)
+      {/* This is the “calculating bit” gate */}
+      <Button onClick={onCalculateGoalsClick} className="w-full">
+        Calculate Goals
       </Button>
+
+      {/* Sign-in gate dialog */}
+      <Dialog open={showSignInGate} onOpenChange={setShowSignInGate}>
+        <DialogContent className="border-white/10 bg-black/70 backdrop-blur-xl">
+          <DialogHeader>
+            <DialogTitle>Sign in to unlock Goals</DialogTitle>
+            <DialogDescription>
+              This feature is <span className="text-foreground font-medium">free</span> — signing in just lets us
+              save your plan and keep it synced across devices.
+              <br />
+              <span className="text-xs text-muted-foreground">
+                No spam. No payment. No weird stuff — just progress tracking.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setShowSignInGate(false)}>
+              Not now
+            </Button>
+            <Button asChild>
+              <Link href="/auth/login">Sign in</Link>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
