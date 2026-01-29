@@ -86,9 +86,12 @@ export async function createEvent(formData: FormData): Promise<{ success: boolea
   const name = formData.get('name') as string
   const startDay = parseInt(formData.get('start_day') as string)
   const endDay = parseInt(formData.get('end_day') as string)
-  const categoryId = formData.get('category_id') as string | null
+  const rawCategoryId = formData.get('category_id') as string | null
+  const categoryId = rawCategoryId === 'none' ? null : rawCategoryId
+
   const description = formData.get('description') as string | null
   const tags = formData.getAll('tags') as string[]
+  
   const rewardsJson = formData.get('rewards_json') as string | null
   const rewards = rewardsJson ? JSON.parse(rewardsJson) : null
 
@@ -133,7 +136,9 @@ export async function updateEvent(eventId: string, formData: FormData): Promise<
   const name = formData.get('name') as string
   const startDay = parseInt(formData.get('start_day') as string)
   const endDay = parseInt(formData.get('end_day') as string)
-  const categoryId = formData.get('category_id') as string | null
+  const rawCategoryId = formData.get('category_id') as string | null
+  const categoryId = rawCategoryId === 'none' ? null : rawCategoryId
+
   const description = formData.get('description') as string | null
   const tags = formData.getAll('tags') as string[]
   const rewardsJson = formData.get('rewards_json') as string | null
