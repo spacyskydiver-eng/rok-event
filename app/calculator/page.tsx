@@ -13,6 +13,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { SaveNotice } from '@/components/save-notice'
 import { useUserState } from '@/lib/user-state'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { RewardsBreakdown } from '@/components/rewards-breakdown'
+
 
 type Speedups = {
   universal: number
@@ -380,16 +382,19 @@ export default function CalculatorPage() {
             <Label>Include rewards from calendar events</Label>
           </div>
 
-          {includeEventRewards && (
-            <div className="space-y-4">
-              <RewardsSummary events={eligibleSelectedEvents as any} />
-              <div className="text-xs text-muted-foreground">
-                {currentDay
-                  ? `Events ending before Day ${currentDay} are automatically ignored.`
-                  : `Set a kingdom start date to automatically ignore past events.`}
-              </div>
-            </div>
-          )}
+{includeEventRewards && (
+  <div className="space-y-4">
+    <RewardsSummary events={eligibleSelectedEvents as any} />
+
+    <RewardsBreakdown events={eligibleSelectedEvents as any} />
+
+    <div className="text-xs text-muted-foreground">
+      {currentDay
+        ? `Events ending before Day ${currentDay} are automatically ignored.`
+        : `Set a kingdom start date to automatically ignore past events.`}
+    </div>
+  </div>
+)}
         </CardContent>
       </Card>
 
@@ -452,11 +457,11 @@ export default function CalculatorPage() {
           <DialogHeader>
             <DialogTitle>Sign in to unlock Goals</DialogTitle>
             <DialogDescription>
-              This feature is <span className="text-foreground font-medium">free</span> — signing in just lets us
+              This feature is <span className="text-foreground font-medium">free</span> - signing in just lets us
               save your plan and keep it synced across devices.
               <br />
               <span className="text-xs text-muted-foreground">
-                No spam. No payment. No weird stuff — just progress tracking.
+                No spam. No payment. No weird stuff, just progress tracking.
               </span>
             </DialogDescription>
           </DialogHeader>
