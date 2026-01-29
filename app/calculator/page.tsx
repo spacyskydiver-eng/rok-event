@@ -14,62 +14,131 @@ export default function CalculatorPage() {
 
   const [includeEventRewards, setIncludeEventRewards] = useState(true)
 
-  const [universalSpeedMinutes, setUniversalSpeedMinutes] = useState(0)
-  const [food, setFood] = useState(0)
-  const [wood, setWood] = useState(0)
-  const [stone, setStone] = useState(0)
-  const [gold, setGold] = useState(0)
+const [speedups, setSpeedups] = useState({
+  universal: 0,
+  building: 0,
+  research: 0,
+  training: 0,
+})
+
+const [resources, setResources] = useState({
+  food: 0,
+  wood: 0,
+  stone: 0,
+  gold: 0,
+})
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10 space-y-8">
 
       {/* PAGE INTRO */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold">Progression Calculator</h1>
-        <p className="text-muted-foreground max-w-2xl">
-          Plan your Rise of Kingdoms progression using your current resources
-          and rewards from upcoming events.
-        </p>
-      </div>
+<div className="space-y-4">
+  <div>
+    <a
+      href="/"
+      className="text-sm text-muted-foreground hover:text-foreground transition"
+    >
+      ← Back to Calendar
+    </a>
+  </div>
+
+  <div className="space-y-2">
+    <h1 className="text-3xl font-bold">Progression Calculator</h1>
+    <p className="text-muted-foreground max-w-2xl">
+      Calculate whether your current resources — plus upcoming event rewards —
+      are enough to reach your goals.
+    </p>
+  </div>
+</div>
 
       {/* PLAYER RESOURCES */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Current Resources</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <Input
-            type="number"
-            placeholder="Universal Speedups (minutes)"
-            value={universalSpeedMinutes}
-            onChange={e => setUniversalSpeedMinutes(Number(e.target.value))}
-          />
-          <Input
-            type="number"
-            placeholder="Food"
-            value={food}
-            onChange={e => setFood(Number(e.target.value))}
-          />
-          <Input
-            type="number"
-            placeholder="Wood"
-            value={wood}
-            onChange={e => setWood(Number(e.target.value))}
-          />
-          <Input
-            type="number"
-            placeholder="Stone"
-            value={stone}
-            onChange={e => setStone(Number(e.target.value))}
-          />
-          <Input
-            type="number"
-            placeholder="Gold"
-            value={gold}
-            onChange={e => setGold(Number(e.target.value))}
-          />
-        </CardContent>
-      </Card>
+<Card>
+  <CardHeader>
+    <CardTitle>Your Current Inventory</CardTitle>
+  </CardHeader>
+
+  <CardContent className="space-y-6">
+
+    {/* SPEEDUPS */}
+    <div>
+      <h3 className="font-medium mb-3">Speedups (minutes)</h3>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Input
+          type="number"
+          placeholder="Universal"
+          value={speedups.universal}
+          onChange={e =>
+            setSpeedups(s => ({ ...s, universal: Number(e.target.value) }))
+          }
+        />
+        <Input
+          type="number"
+          placeholder="Building"
+          value={speedups.building}
+          onChange={e =>
+            setSpeedups(s => ({ ...s, building: Number(e.target.value) }))
+          }
+        />
+        <Input
+          type="number"
+          placeholder="Research"
+          value={speedups.research}
+          onChange={e =>
+            setSpeedups(s => ({ ...s, research: Number(e.target.value) }))
+          }
+        />
+        <Input
+          type="number"
+          placeholder="Training"
+          value={speedups.training}
+          onChange={e =>
+            setSpeedups(s => ({ ...s, training: Number(e.target.value) }))
+          }
+        />
+      </div>
+    </div>
+
+    {/* RESOURCES */}
+    <div>
+      <h3 className="font-medium mb-3">Resources</h3>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Input
+          type="number"
+          placeholder="Food"
+          value={resources.food}
+          onChange={e =>
+            setResources(r => ({ ...r, food: Number(e.target.value) }))
+          }
+        />
+        <Input
+          type="number"
+          placeholder="Wood"
+          value={resources.wood}
+          onChange={e =>
+            setResources(r => ({ ...r, wood: Number(e.target.value) }))
+          }
+        />
+        <Input
+          type="number"
+          placeholder="Stone"
+          value={resources.stone}
+          onChange={e =>
+            setResources(r => ({ ...r, stone: Number(e.target.value) }))
+          }
+        />
+        <Input
+          type="number"
+          placeholder="Gold"
+          value={resources.gold}
+          onChange={e =>
+            setResources(r => ({ ...r, gold: Number(e.target.value) }))
+          }
+        />
+      </div>
+    </div>
+
+  </CardContent>
+</Card>
 
       {/* EVENT REWARDS */}
       <Card>
