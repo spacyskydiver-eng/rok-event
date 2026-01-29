@@ -54,7 +54,6 @@ export async function getEvents(): Promise<CalendarEventWithMeta[]> {
 
 return (data || []).map(event => ({
   ...event,
-  rewards: undefined,
   tags: Array.isArray((event as any).tags) ? (event as any).tags : []
 }))
 }
