@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import RewardsSummary from '@/components/rewards-summary'
-import { useEventSelection } from '@/components/event-selection-context'
 import { getKingdomSettings, getCalculatorInventory, saveCalculatorInventory } from '@/lib/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,7 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { SaveNotice } from '@/components/save-notice'
 import { useUserState } from '@/lib/user-state'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { RewardsBreakdown } from '@/components/rewards-breakdown'
+import type { CalendarEventWithMeta } from '@/lib/types'
+
 
 
 type Speedups = {
@@ -68,9 +68,12 @@ function aggregateEventRewards(events: any[]) {
   return { speedups, resources, other }
 }
 
-export default function CalculatorPage() {
-  // Selected events (from calendar selection store)
-const { selectedEvents } = useEventSelection()
+export default function CalculatorPage({
+  events,
+}: {
+  events: CalendarEventWithMeta[]
+}) {  // Selected events (from calendar selection store)
+
 
 
   // ✅ Shared persisted state (works signed out via localStorage)
@@ -157,15 +160,22 @@ const { selectedEvents } = useEventSelection()
     }
   }, [setKingdomStartDate, setSpeedups, setResources])
 
-  // Eligible selected events (ignore already-ended ones when we know current day)
-  const eligibleSelectedEvents = useMemo(() => {
-    if (!currentDay) return selectedEvents
-    return selectedEvents.filter(e => (e.end_day ?? 0) >= currentDay)
-  }, [selectedEvents, currentDay])
+// Eligible calendar events (automatic, no manual selection)
+const eligibleEvents = useMemo(() => {
+  if (!currentDay) return events
 
-  const eventRewards = useMemo(() => {
-    return aggregateEventRewards(eligibleSelectedEvents)
-  }, [eligibleSelectedEvents])
+  return events.filter(e => {
+    if ((e.end_day ?? 0) < currentDay) return false
+    return true
+  })
+}, [events, currentDay])
+
+
+
+const eventRewards = useMemo(() => {
+  return aggregateEventRewards(eligibleEvents)
+}, [eligibleEvents])
+
 
   const effectiveTotals = useMemo(() => {
     const baseSpeed = { ...speedups }
@@ -384,9 +394,9 @@ const { selectedEvents } = useEventSelection()
 
 {includeEventRewards && (
   <div className="space-y-4">
-    <RewardsSummary events={eligibleSelectedEvents as any} />
+    <RewardsSummary events={eligibleEvents as any} />
 
-    <RewardsBreakdown events={eligibleSelectedEvents as any} />
+    
 
     <div className="text-xs text-muted-foreground">
       {currentDay
