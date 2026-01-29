@@ -62,79 +62,102 @@ const [resources, setResources] = useState({
     {/* SPEEDUPS */}
     <div>
       <h3 className="font-medium mb-3">Speedups (minutes)</h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Input
-          type="number"
-          placeholder="Universal"
-          value={speedups.universal}
-          onChange={e =>
-            setSpeedups(s => ({ ...s, universal: Number(e.target.value) }))
-          }
-        />
-        <Input
-          type="number"
-          placeholder="Building"
-          value={speedups.building}
-          onChange={e =>
-            setSpeedups(s => ({ ...s, building: Number(e.target.value) }))
-          }
-        />
-        <Input
-          type="number"
-          placeholder="Research"
-          value={speedups.research}
-          onChange={e =>
-            setSpeedups(s => ({ ...s, research: Number(e.target.value) }))
-          }
-        />
-        <Input
-          type="number"
-          placeholder="Training"
-          value={speedups.training}
-          onChange={e =>
-            setSpeedups(s => ({ ...s, training: Number(e.target.value) }))
-          }
-        />
-      </div>
+<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div className="space-y-1">
+    <Label>Universal</Label>
+    <Input
+      type="number"
+      value={speedups.universal}
+      onChange={e =>
+        setSpeedups(s => ({ ...s, universal: Number(e.target.value) }))
+      }
+    />
+  </div>
+
+  <div className="space-y-1">
+    <Label>Building</Label>
+    <Input
+      type="number"
+      value={speedups.building}
+      onChange={e =>
+        setSpeedups(s => ({ ...s, building: Number(e.target.value) }))
+      }
+    />
+  </div>
+
+  <div className="space-y-1">
+    <Label>Research</Label>
+    <Input
+      type="number"
+      value={speedups.research}
+      onChange={e =>
+        setSpeedups(s => ({ ...s, research: Number(e.target.value) }))
+      }
+    />
+  </div>
+
+  <div className="space-y-1">
+    <Label>Training</Label>
+    <Input
+      type="number"
+      value={speedups.training}
+      onChange={e =>
+        setSpeedups(s => ({ ...s, training: Number(e.target.value) }))
+      }
+    />
+  </div>
+</div>
     </div>
 
     {/* RESOURCES */}
     <div>
       <h3 className="font-medium mb-3">Resources</h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Input
-          type="number"
-          placeholder="Food"
-          value={resources.food}
-          onChange={e =>
-            setResources(r => ({ ...r, food: Number(e.target.value) }))
-          }
-        />
-        <Input
-          type="number"
-          placeholder="Wood"
-          value={resources.wood}
-          onChange={e =>
-            setResources(r => ({ ...r, wood: Number(e.target.value) }))
-          }
-        />
-        <Input
-          type="number"
-          placeholder="Stone"
-          value={resources.stone}
-          onChange={e =>
-            setResources(r => ({ ...r, stone: Number(e.target.value) }))
-          }
-        />
-        <Input
-          type="number"
-          placeholder="Gold"
-          value={resources.gold}
-          onChange={e =>
-            setResources(r => ({ ...r, gold: Number(e.target.value) }))
-          }
-        />
-      </div>
+<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div className="space-y-1">
+    <Label>Food</Label>
+    <Input
+      type="number"
+      value={resources.food}
+      onChange={e =>
+        setResources(r => ({ ...r, food: Number(e.target.value) }))
+      }
+    />
+  </div>
+
+  <div className="space-y-1">
+    <Label>Wood</Label>
+    <Input
+      type="number"
+      value={resources.wood}
+      onChange={e =>
+        setResources(r => ({ ...r, wood: Number(e.target.value) }))
+      }
+    />
+  </div>
+
+  <div className="space-y-1">
+    <Label>Stone</Label>
+    <Input
+      type="number"
+      value={resources.stone}
+      onChange={e =>
+        setResources(r => ({ ...r, stone: Number(e.target.value) }))
+      }
+    />
+  </div>
+
+  <div className="space-y-1">
+    <Label>Gold</Label>
+    <Input
+      type="number"
+      value={resources.gold}
+      onChange={e =>
+        setResources(r => ({ ...r, gold: Number(e.target.value) }))
+      }
+    />
+  </div>
+</div>
+
     </div>
 
   </CardContent>
