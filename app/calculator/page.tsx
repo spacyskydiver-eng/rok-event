@@ -2,16 +2,15 @@
 
 import { useState } from 'react'
 import RewardsSummary from '@/components/rewards-summary'
-import { CalendarEventWithMeta } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useSelectedEvents } from '@/lib/selected-events'
 
 export default function CalculatorPage() {
-  // TEMP: later this will come from calendar context
-  const [selectedEvents, setSelectedEvents] = useState<CalendarEventWithMeta[]>([])
+  const selectedEvents = useSelectedEvents(state => state.events)
 
   const [includeEventRewards, setIncludeEventRewards] = useState(true)
 
@@ -65,7 +64,7 @@ export default function CalculatorPage() {
         </CardContent>
       </Card>
 
-      {/* Include Event Rewards */}
+      {/* Event Rewards */}
       <Card>
         <CardHeader>
           <CardTitle>Event Rewards</CardTitle>
@@ -83,17 +82,6 @@ export default function CalculatorPage() {
             <RewardsSummary events={selectedEvents} />
           </CardContent>
         )}
-      </Card>
-
-      {/* Placeholder for future goals */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Goals (Coming Next)</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          City Hall goals, research planning, training & bundle integration
-          will appear here next.
-        </CardContent>
       </Card>
 
       <Button disabled>

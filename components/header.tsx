@@ -29,13 +29,34 @@ export function Header({ permissions, userEmail }: HeaderProps) {
   shadow-[0_8px_32px_rgba(0,0,0,0.35)]
 ">
       <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Crown className="h-8 w-8 text-amber-500" />
-          <div>
-            <h1 className="text-lg font-semibold tracking-tight">RoK Kingdom Calendar</h1>
-            <p className="text-xs text-muted-foreground">Days 1-130 Event Tracker</p>
-          </div>
-        </div>
+<div className="flex items-center gap-4">
+  <Crown className="h-8 w-8 text-amber-500" />
+
+  <div className="flex flex-col">
+    <h1 className="text-lg font-semibold tracking-tight">
+      RoK Kingdom Calendar
+    </h1>
+    <p className="text-xs text-muted-foreground">
+      Days 1–130 Event Tracker
+    </p>
+
+    {/* Navigation */}
+    <div className="flex gap-3 mt-1 text-sm">
+      <Link
+        href="/"
+        className="text-muted-foreground hover:text-foreground transition"
+      >
+        Calendar
+      </Link>
+      <Link
+        href="/calculator"
+        className="text-muted-foreground hover:text-foreground transition"
+      >
+        Calculator
+      </Link>
+    </div>
+  </div>
+</div>
 
         <div className="flex items-center gap-3">
           {permissions.isAuthenticated ? (
