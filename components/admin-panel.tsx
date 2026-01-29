@@ -150,6 +150,11 @@ export function AdminPanel({ events, categories, whitelist, permissions }: Admin
     setIsLoading(true)
 
     const formData = new FormData(e.currentTarget)
+    // FIX: convert "none" → empty string so Supabase accepts it
+if (formData.get('category_id') === 'none') {
+  formData.set('category_id', '')
+}
+
     const result = await createCategory(formData)
 
     if (result.success) {
@@ -319,7 +324,10 @@ export function AdminPanel({ events, categories, whitelist, permissions }: Admin
 
                     <div className="space-y-2">
                       <Label htmlFor="category_id">Category</Label>
-                      <Select name="category_id" defaultValue={editingEvent?.category_id || 'none'}>
+                      <Select
+  name="category_id"
+  defaultValue={editingEvent?.category_id ?? 'none'}
+>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
