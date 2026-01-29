@@ -7,6 +7,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useEventSelection } from '@/components/event-selection-context'
 import RewardsSummary from '@/components/rewards-summary'
+import { useUserState } from '@/lib/user-state'
+
 
 interface CalendarTimelineProps {
   events: CalendarEventWithMeta[]
@@ -51,15 +53,25 @@ function toUtcMidnightMs(dateStr: string) {
 
 export function CalendarTimeline({ events, categories, bundles }: CalendarTimelineProps) {
   const { toggleEvent, isSelected } = useEventSelection()
+  const {
+  kingdomStartDate,
+  firstCaoWheelDate,
+  setKingdomStartDate,
+  setFirstCaoWheelDate,
+} = useUserState()
+
+
 
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
     () => new Set(categories.map(c => c.id))
   )
   const [showBundles, setShowBundles] = useState(true)
   const [showOptimal, setShowOptimal] = useState(true)
+  const [editingStart, setEditingStart] = useState(false)
+  const [editingWheel, setEditingWheel] = useState(false)
 
-  const [kingdomStartDate, setKingdomStartDate] = useState<string>('')
-  const [firstCaoWheelDate, setFirstCaoWheelDate] = useState<string>('')
+
+
 
   const [activeOptimal, setActiveOptimal] = useState<ActiveOptimalInfo>(null)
 
@@ -219,14 +231,47 @@ export function CalendarTimeline({ events, categories, bundles }: CalendarTimeli
     <div className="flex flex-col gap-4">
       {/* Kingdom start date */}
       <div className="flex flex-col gap-2 p-4 bg-card rounded-lg border border-border">
-        <span className="text-sm font-semibold text-foreground">Kingdom start date (UTC)</span>
-        <input
-          type="date"
-          className="h-9 rounded-md border border-border bg-background px-3 text-sm"
-          value={kingdomStartDate}
-          onChange={e => setKingdomStartDate(e.target.value)}
-        />
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-sm font-semibold text-foreground">Kingdom start date (UTC)</span>
+
+          {kingdomStartDate && !editingStart && (
+            <button
+              className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4 transition"
+              onClick={() => setEditingStart(true)}
+              type="button"
+            >
+              Edit
+            </button>
+          )}
+        </div>
+
+        {!kingdomStartDate || editingStart ? (
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              className="h-9 flex-1 rounded-md border border-border bg-background px-3 text-sm"
+              value={kingdomStartDate ?? ''}
+              onChange={e => setKingdomStartDate(e.target.value || null)}
+            />
+
+            {kingdomStartDate && (
+              <Button
+                variant="secondary"
+                size="sm"
+                type="button"
+                onClick={() => setEditingStart(false)}
+              >
+                Save
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="text-sm">
+            <span className="text-foreground">{kingdomStartDate}</span>
+          </div>
+        )}
       </div>
+
 
       {/* Wheel setup */}
       <div className="flex flex-col gap-2 p-4 bg-card rounded-lg border border-border">
@@ -238,15 +283,48 @@ export function CalendarTimeline({ events, categories, bundles }: CalendarTimeli
             </span>
           </div>
 
-          <label className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">First Cao Cao Wheel date (UTC)</span>
-            <input
-              type="date"
-              className="h-9 rounded-md border border-border bg-background px-3 text-sm"
-              value={firstCaoWheelDate}
-              onChange={e => setFirstCaoWheelDate(e.target.value)}
-            />
-          </label>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs text-muted-foreground">First Cao Cao Wheel date (UTC)</span>
+
+              {firstCaoWheelDate && !editingWheel && (
+                <button
+                  className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4 transition"
+                  onClick={() => setEditingWheel(true)}
+                  type="button"
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+
+            {!firstCaoWheelDate || editingWheel ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  className="h-9 flex-1 rounded-md border border-border bg-background px-3 text-sm"
+                  value={firstCaoWheelDate ?? ''}
+                  onChange={e => setFirstCaoWheelDate(e.target.value || null)}
+                />
+
+                {firstCaoWheelDate && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    type="button"
+                    onClick={() => setEditingWheel(false)}
+                  >
+                    Save
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="text-sm">
+                <span className="text-foreground">{firstCaoWheelDate}</span>
+              </div>
+            )}
+          </div>
+
         </div>
 
         {!kingdomStartDate && (
