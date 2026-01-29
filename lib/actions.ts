@@ -693,4 +693,57 @@ export async function saveKingdomSettings(input: {
 
   if (error) throw error
 }
+// ===== Calculator Inventory (per-user) =====
+
+export async function getCalculatorInventory() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data, error } = await supabase
+    .from('user_calculator_inventory')
+    .select('*')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (error) throw error
+
+  return data ?? {
+    user_id: user.id,
+    speed_universal_minutes: 0,
+    speed_building_minutes: 0,
+    speed_research_minutes: 0,
+    speed_training_minutes: 0,
+    resource_food: 0,
+    resource_wood: 0,
+    resource_stone: 0,
+    resource_gold: 0,
+  }
+}
+
+export async function saveCalculatorInventory(input: {
+  speed_universal_minutes: number
+  speed_building_minutes: number
+  speed_research_minutes: number
+  speed_training_minutes: number
+  resource_food: number
+  resource_wood: number
+  resource_stone: number
+  resource_gold: number
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not signed in')
+
+  const { error } = await supabase
+    .from('user_calculator_inventory')
+    .upsert({
+      user_id: user.id,
+      ...input,
+      updated_at: new Date().toISOString(),
+    })
+
+  if (error) throw error
+}
+
 
