@@ -261,3 +261,72 @@ export async function saveKingdomSettings(input: {
   if (error) throw error
 }
 
+// Bundle Column Management
+export async function addBundleColumn(
+  bundleId: string,
+  name: string
+): Promise<{ success: boolean; error?: string; column?: BundleTierColumn }> {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Not authenticated' }
+
+  const { data: existing } = await supabase
+    .from('bundle_tier_columns')
+    .select('sort_order')
+    .eq('bundle_id', bundleId)
+    .order('sort_order', { ascending: false })
+    .limit(1)
+
+  const sortOrder = (existing?.[0]?.sort_order ?? -1) + 1
+
+  const { data, error } = await supabase
+    .from('bundle_tier_columns')
+    .insert({
+      bundle_id: bundleId,
+      name,
+      sort_order: sortOrder,
+    })
+    .select()
+    .single()
+
+  if (error) return { success: false, error: error.message }
+
+  revalidatePath('/')
+  return { success: true, column: data }
+}
+
+export async function updateBundleColumn(
+  columnId: string,
+  name: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('bundle_tier_columns')
+    .update({ name })
+    .eq('id', columnId)
+
+  if (error) return { success: false, error: error.message }
+
+  revalidatePath('/')
+  return { success: true }
+}
+
+export async function deleteBundleColumn(
+  columnId: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('bundle_tier_columns')
+    .delete()
+    .eq('id', columnId)
+
+  if (error) return { success: false, error: error.message }
+
+  revalidatePath('/')
+  return { success: true }
+}
+
+
