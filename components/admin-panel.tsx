@@ -104,35 +104,33 @@ export function AdminPanel({ events, categories, whitelist, permissions }: Admin
     })
   }, [assumesFull, rewardRows])
 
-  const handleEventSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsLoading(true)
+const handleEventSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault()
+  setIsLoading(true)
 
-    const formData = new FormData(e.currentTarget)
+  const formData = new FormData(e.currentTarget)
+  formData.set('rewards_json', rewardsJson)
 
-    // ✅ THIS is what you were missing — without this, rewards never save
-    formData.set('rewards_json', rewardsJson)
+  const result = editingEvent
+    ? await updateEvent(editingEvent.id, formData)
+    : await createEvent(formData)
 
-    const result = editingEvent
-      ? await updateEvent(editingEvent.id, formData)
-      : await createEvent(formData)
-
-    if (result.success) {
-      toast({ title: editingEvent ? 'Event updated' : 'Event created' })
-      setIsEventDialogOpen(false)
-      setEditingEvent(null)
-      router.refresh()
-    } else {
-toast({
-  title: 'Error',
-  description: String(result.error ?? 'Unknown error'),
-  variant: 'destructive'
-})
-
-    }
-
-    setIsLoading(false)
+  if (result.success) {
+    toast({ title: editingEvent ? 'Event updated' : 'Event created' })
+    setIsEventDialogOpen(false)
+    setEditingEvent(null)
+    router.refresh()
+  } else {
+    console.log('UPDATE EVENT FAILED:', result)
+    alert(
+      'EVENT UPDATE FAILED\n\n' +
+      JSON.stringify(result, null, 2)
+    )
   }
+
+  setIsLoading(false)
+}
+
 
   const handleDeleteEvent = async (eventId: string) => {
     if (!confirm('Are you sure you want to delete this event?')) return
