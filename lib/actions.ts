@@ -261,32 +261,87 @@ export async function saveKingdomSettings(input: {
   if (error) throw error
 }
 
-// Bundle Column Management
-export async function addBundleColumn(
-  bundleId: string,
-  name: string
-): Promise<{ success: boolean; error?: string; column?: BundleTierColumn }> {
+// =======================
+// Bundle Tier Management
+// =======================
+export async function addBundleTier(bundleId: string, name: string, price: string | null) {
   const supabase = await createClient()
-
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Not authenticated' }
 
-  const { data: existing } = await supabase
+  const { data: existingTiers } = await supabase
+    .from('bundle_tiers')
+    .select('sort_order')
+    .eq('bundle_id', bundleId)
+    .order('sort_order', { ascending: false })
+    .limit(1)
+
+  const sortOrder = (existingTiers?.[0]?.sort_order ?? -1) + 1
+
+  const { data, error } = await supabase
+    .from('bundle_tiers')
+    .insert({ bundle_id: bundleId, name, price, sort_order: sortOrder })
+    .select()
+    .single()
+
+  if (error) return { success: false, error: error.message }
+
+  revalidatePath('/')
+  return { success: true, tier: data }
+}
+
+export async function updateBundleTier(tierId: string, name: string, price: string | null) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('bundle_tiers')
+    .update({ name, price })
+    .eq('id', tierId)
+
+  if (error) return { success: false, error: error.message }
+
+  revalidatePath('/')
+  return { success: true }
+}
+
+export async function deleteBundleTier(tierId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('bundle_tiers')
+    .delete()
+    .eq('id', tierId)
+
+  if (error) return { success: false, error: error.message }
+
+  revalidatePath('/')
+  return { success: true }
+}
+
+// =======================
+// Bundle Column Management
+// =======================
+export async function addBundleColumn(bundleId: string, name: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Not authenticated' }
+
+  const { data: existingColumns } = await supabase
     .from('bundle_tier_columns')
     .select('sort_order')
     .eq('bundle_id', bundleId)
     .order('sort_order', { ascending: false })
     .limit(1)
 
-  const sortOrder = (existing?.[0]?.sort_order ?? -1) + 1
+  const sortOrder = (existingColumns?.[0]?.sort_order ?? -1) + 1
 
   const { data, error } = await supabase
     .from('bundle_tier_columns')
-    .insert({
-      bundle_id: bundleId,
-      name,
-      sort_order: sortOrder,
-    })
+    .insert({ bundle_id: bundleId, name, sort_order: sortOrder })
     .select()
     .single()
 
@@ -296,11 +351,10 @@ export async function addBundleColumn(
   return { success: true, column: data }
 }
 
-export async function updateBundleColumn(
-  columnId: string,
-  name: string
-): Promise<{ success: boolean; error?: string }> {
+export async function updateBundleColumn(columnId: string, name: string) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Not authenticated' }
 
   const { error } = await supabase
     .from('bundle_tier_columns')
@@ -313,15 +367,36 @@ export async function updateBundleColumn(
   return { success: true }
 }
 
-export async function deleteBundleColumn(
-  columnId: string
-): Promise<{ success: boolean; error?: string }> {
+export async function deleteBundleColumn(columnId: string) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Not authenticated' }
 
   const { error } = await supabase
     .from('bundle_tier_columns')
     .delete()
     .eq('id', columnId)
+
+  if (error) return { success: false, error: error.message }
+
+  revalidatePath('/')
+  return { success: true }
+}
+
+// =======================
+// Bundle Cell Management
+// =======================
+export async function updateBundleCell(tierId: string, columnId: string, value: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('bundle_tier_cells')
+    .upsert(
+      { tier_id: tierId, column_id: columnId, value },
+      { onConflict: 'tier_id,column_id' }
+    )
 
   if (error) return { success: false, error: error.message }
 
