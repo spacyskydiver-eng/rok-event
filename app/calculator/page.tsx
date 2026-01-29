@@ -13,6 +13,8 @@ import { SaveNotice } from '@/components/save-notice'
 import { useUserState } from '@/lib/user-state'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import type { CalendarEventWithMeta } from '@/lib/types'
+import { getEvents } from '@/lib/actions'
+
 
 
 
@@ -68,11 +70,8 @@ function aggregateEventRewards(events: any[]) {
   return { speedups, resources, other }
 }
 
-export default function CalculatorPage({
-  events,
-}: {
-  events: CalendarEventWithMeta[]
-}) {  // Selected events (from calendar selection store)
+export default function CalculatorPage() {
+  // Selected events (from calendar selection store)
 
 
 
@@ -97,6 +96,8 @@ export default function CalculatorPage({
 
   // Current day derived from kingdomStartDate
   const [currentDay, setCurrentDay] = useState<number | null>(null)
+  const [events, setEvents] = useState<CalendarEventWithMeta[]>([])
+
 
   // 1) Keep currentDay in sync + prune past events whenever kingdomStartDate changes (SIGNED IN OR OUT)
   useEffect(() => {
@@ -238,6 +239,25 @@ const eventRewards = useMemo(() => {
     // For now keep it clean:
     alert('Goals calculator is next — you are signed in, so you’ll get access when it goes live.')
   }
+useEffect(() => {
+  let cancelled = false
+
+  async function loadEvents() {
+    try {
+      const data = await getEvents()
+      if (!cancelled && Array.isArray(data)) {
+        setEvents(data)
+      }
+    } catch (e) {
+      console.error('Failed to load events:', e)
+    }
+  }
+
+  loadEvents()
+  return () => {
+    cancelled = true
+  }
+}, [])
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
