@@ -89,6 +89,9 @@ export async function createEvent(formData: FormData): Promise<{ success: boolea
   const categoryId = formData.get('category_id') as string | null
   const description = formData.get('description') as string | null
   const tags = formData.getAll('tags') as string[]
+  const rewardsJson = formData.get('rewards_json') as string | null
+  const rewards = rewardsJson ? JSON.parse(rewardsJson) : null
+
 
   if (!name || !startDay || !endDay) {
     return { success: false, error: 'Missing required fields' }
@@ -98,15 +101,17 @@ export async function createEvent(formData: FormData): Promise<{ success: boolea
     return { success: false, error: 'Invalid day range (must be 1-130)' }
   }
 
-  const { error } = await supabase.from('events').insert({
-    name,
-    start_day: startDay,
-    end_day: endDay,
-    category_id: categoryId || null,
-    description: description || null,
-    tags: tags.length ? tags : null,
-    created_by: user.id
-  })
+const { error } = await supabase.from('events').insert({
+  name,
+  start_day: startDay,
+  end_day: endDay,
+  category_id: categoryId || null,
+  description: description || null,
+  tags: tags.length ? tags : null,
+  rewards: rewards,
+  created_by: user.id
+})
+
 
   if (error) {
     console.error('Error creating event:', error)
@@ -131,6 +136,9 @@ export async function updateEvent(eventId: string, formData: FormData): Promise<
   const categoryId = formData.get('category_id') as string | null
   const description = formData.get('description') as string | null
   const tags = formData.getAll('tags') as string[]
+  const rewardsJson = formData.get('rewards_json') as string | null
+  const rewards = rewardsJson ? JSON.parse(rewardsJson) : null
+
 
   if (!name || !startDay || !endDay) {
     return { success: false, error: 'Missing required fields' }
@@ -142,15 +150,17 @@ export async function updateEvent(eventId: string, formData: FormData): Promise<
 
   const { error } = await supabase
     .from('events')
-    .update({
-      name,
-      start_day: startDay,
-      end_day: endDay,
-      category_id: categoryId || null,
-      description: description || null,
-      tags: tags.length ? tags : null,
-      updated_at: new Date().toISOString()
-    })
+.update({
+  name,
+  start_day: startDay,
+  end_day: endDay,
+  category_id: categoryId || null,
+  description: description || null,
+  tags: tags.length ? tags : null,
+  rewards: rewards,
+  updated_at: new Date().toISOString()
+})
+
     .eq('id', eventId)
 
   if (error) {
