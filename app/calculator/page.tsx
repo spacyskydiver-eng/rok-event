@@ -76,14 +76,17 @@ export default function CalculatorPage() {
 
 
   // ✅ Shared persisted state (works signed out via localStorage)
-  const {
-    kingdomStartDate,
-    speedups,
-    resources,
-    setKingdomStartDate,
-    setSpeedups,
-    setResources,
-  } = useUserState()
+const {
+  kingdomStartDate,
+  speedups,
+  resources,
+  goals,
+  setGoals,
+  setKingdomStartDate,
+  setSpeedups,
+  setResources,
+} = useUserState()
+
 
   const [includeEventRewards, setIncludeEventRewards] = useState(true)
 
@@ -475,6 +478,73 @@ useEffect(() => {
           </div>
         </CardContent>
       </Card>
+{/* Goal Targets */}
+<Card className="border-white/10 bg-black/30 shadow-[0_0_60px_rgba(59,130,246,0.08)]">
+  <CardHeader>
+    <CardTitle>Goal Targets</CardTitle>
+  </CardHeader>
+
+  <CardContent className="space-y-6">
+    {/* City Hall */}
+    <div className="space-y-1">
+      <Label>Target City Hall Level (optional)</Label>
+      <Input
+        type="number"
+        min={1}
+        max={25}
+        value={goals.cityHallLevel ?? ''}
+        onChange={(e) =>
+          setGoals({
+            cityHallLevel: e.target.value
+              ? clampNum(e.target.value)
+              : null,
+          })
+        }
+        placeholder="e.g. 25"
+      />
+    </div>
+
+    {/* Speedup Goals */}
+    <div className="space-y-2">
+      <div className="font-medium">Required Speedups (minutes)</div>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="space-y-1">
+          <Label>Research</Label>
+          <Input
+            type="number"
+            value={goals.researchSpeedups}
+            onChange={(e) =>
+              setGoals({ researchSpeedups: clampNum(e.target.value) })
+            }
+          />
+        </div>
+
+        <div className="space-y-1">
+          <Label>Building</Label>
+          <Input
+            type="number"
+            value={goals.buildingSpeedups}
+            onChange={(e) =>
+              setGoals({ buildingSpeedups: clampNum(e.target.value) })
+            }
+          />
+        </div>
+
+        <div className="space-y-1">
+          <Label>Training</Label>
+          <Input
+            type="number"
+            value={goals.trainingSpeedups}
+            onChange={(e) =>
+              setGoals({ trainingSpeedups: clampNum(e.target.value) })
+            }
+          />
+        </div>
+      </div>
+    </div>
+  </CardContent>
+</Card>
 
       {/* This is the “calculating bit” gate */}
       <Button onClick={onCalculateGoalsClick} className="w-full">
