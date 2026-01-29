@@ -121,7 +121,7 @@ const { error } = await supabase.from('events').insert({
     return { success: false, error: error.message }
   }
 
-  revalidateTag('events', 'max')
+  revalidateTag('bundles')
   return { success: true }
 }
 
@@ -173,7 +173,7 @@ export async function updateEvent(eventId: string, formData: FormData): Promise<
     return { success: false, error: error.message }
   }
 
-  revalidateTag('events', 'max')
+  revalidateTag('bundles')
   return { success: true }
 }
 
@@ -195,7 +195,7 @@ export async function deleteEvent(eventId: string): Promise<{ success: boolean; 
     return { success: false, error: error.message }
   }
 
-  revalidateTag('events', 'max')
+  revalidateTag('bundles')
   return { success: true }
 }
 
@@ -224,7 +224,7 @@ export async function createCategory(formData: FormData): Promise<{ success: boo
     return { success: false, error: error.message }
   }
 
-  revalidateTag('categories', 'max')
+  revalidateTag('categories')
   return { success: true }
 }
 
@@ -246,7 +246,7 @@ export async function deleteCategory(categoryId: string): Promise<{ success: boo
     return { success: false, error: error.message }
   }
 
-  revalidateTag('categories', 'max')
+  revalidateTag('categories')
   return { success: true }
 }
 
@@ -294,7 +294,7 @@ export async function addToWhitelist(formData: FormData): Promise<{ success: boo
     return { success: false, error: error.message }
   }
 
-  revalidateTag('whitelist', 'max')
+  revalidateTag('whitelist')
   return { success: true }
 }
 
@@ -316,7 +316,7 @@ export async function removeFromWhitelist(whitelistId: string): Promise<{ succes
     return { success: false, error: error.message }
   }
 
-  revalidateTag('whitelist', 'max')
+  revalidateTag('whitelist')
   return { success: true }
 }
 
