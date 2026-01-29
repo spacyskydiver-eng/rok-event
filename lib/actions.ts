@@ -168,10 +168,24 @@ export async function updateEvent(eventId: string, formData: FormData): Promise<
 
     .eq('id', eventId)
 
-  if (error) {
-    console.error('Error updating event:', error)
-    return { success: false, error: error.message }
+if (error) {
+  console.error('FULL UPDATE ERROR:', {
+    message: error.message,
+    details: error.details,
+    hint: error.hint,
+    code: error.code,
+  })
+
+  return {
+    success: false,
+    error:
+      error.message ||
+      error.details ||
+      error.hint ||
+      'Update failed (unknown error)',
   }
+}
+
 
   revalidatePath('/')
   return { success: true }
