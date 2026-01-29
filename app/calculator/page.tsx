@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import RewardsSummary from '@/components/rewards-summary'
-import { useSelectedEvents } from '@/lib/selected-events'
+import { useEventSelection } from '@/components/event-selection-context'
 import { getKingdomSettings, getCalculatorInventory, saveCalculatorInventory } from '@/lib/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -70,8 +70,8 @@ function aggregateEventRewards(events: any[]) {
 
 export default function CalculatorPage() {
   // Selected events (from calendar selection store)
-  const selectedEvents = useSelectedEvents(s => s.events)
-  const prunePastEvents = useSelectedEvents(s => s.prunePastEvents)
+const { selectedEvents } = useEventSelection()
+
 
   // ✅ Shared persisted state (works signed out via localStorage)
   const {
@@ -103,8 +103,8 @@ export default function CalculatorPage() {
     }
     const day = utcDayNumberFromStart(kingdomStartDate)
     setCurrentDay(day)
-    prunePastEvents(day)
-  }, [kingdomStartDate, prunePastEvents])
+    
+  }, [kingdomStartDate])
 
   // 2) Signed-in boot: hydrate state from Supabase ONLY if user is signed in.
   //    If signed out, this returns null and we keep local state.
