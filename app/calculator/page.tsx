@@ -10,6 +10,9 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { SaveNotice } from '@/components/save-notice'
+
+
 
 type Speedups = {
   universal: number
@@ -25,7 +28,7 @@ type Resources = {
   gold: number
 }
 
-function clampNum(n: any) {
+function clampNum(n: unknown) {
   const x = Number(n)
   return Number.isFinite(x) && x > 0 ? x : 0
 }
@@ -73,7 +76,9 @@ function aggregateEventRewards(events: any[]) {
 }
 
 export default function CalculatorPage() {
+
   const selectedEvents = useSelectedEvents(s => s.events)
+  
   const prunePastEvents = useSelectedEvents(s => s.prunePastEvents)
 
   const [includeEventRewards, setIncludeEventRewards] = useState(true)
@@ -209,8 +214,13 @@ export default function CalculatorPage() {
     return () => clearTimeout(t)
   }, [isSignedIn, speedups, resources])
 
-  return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
+return (
+  <div className="max-w-5xl mx-auto p-6 space-y-6">
+    {!isSignedIn && (
+      <div className="mb-6">
+        <SaveNotice />
+      </div>
+    )}
       <div className="flex items-center justify-between">
         <Link
           href="/"

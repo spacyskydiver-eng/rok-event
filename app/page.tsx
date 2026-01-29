@@ -5,9 +5,12 @@ import { CalendarTimeline } from '@/components/calendar-timeline'
 import { AdminPanel } from '@/components/admin-panel'
 import { BundleManager } from '@/components/bundle-manager'
 import { getKingdomSettings } from '@/lib/actions'
+import { SaveNotice } from '@/components/save-notice'
+import { getAuthStatus } from '@/lib/auth'
 
 
 export default async function HomePage() {
+  const { isSignedIn } = await getAuthStatus()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
