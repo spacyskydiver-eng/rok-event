@@ -163,10 +163,8 @@ export async function updateEvent(eventId: string, formData: FormData): Promise<
   description: description || null,
   tags: tags.length ? tags : null,
   rewards: rewards,
-  updated_at: new Date().toISOString()
 })
-
-    .eq('id', eventId)
+.eq('id', eventId)
 
 if (error) {
   console.error('FULL UPDATE ERROR:', {
