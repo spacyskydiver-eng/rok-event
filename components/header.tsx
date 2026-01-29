@@ -1,12 +1,12 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import type { UserPermissions } from '@/lib/types'
 import { signOut } from '@/lib/actions'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Crown, LogOut, Shield, UserCircle } from 'lucide-react'
-import Link from 'next/link'
 
 interface HeaderProps {
   permissions: UserPermissions
@@ -22,58 +22,57 @@ export function Header({ permissions, userEmail }: HeaderProps) {
   }
 
   return (
-    <header className="
-  sticky top-0 z-50 w-full
-  bg-background/70 backdrop-blur-xl
-  supports-[backdrop-filter]:bg-background/50
-  shadow-[0_8px_32px_rgba(0,0,0,0.35)]
-">
+    <header className="sticky top-0 z-50 w-full bg-background/70 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
       <div className="container flex h-16 items-center justify-between">
-<div className="flex items-center gap-4">
-  <Crown className="h-8 w-8 text-amber-500" />
 
-  <div className="flex flex-col">
-    <h1 className="text-lg font-semibold tracking-tight">
-      RoK Kingdom Calendar
-    </h1>
-    <p className="text-xs text-muted-foreground">
-      Days 1–130 Event Tracker
-    </p>
+        {/* LEFT: Logo + Nav */}
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
+            <Crown className="h-8 w-8 text-amber-500" />
+            <div>
+              <h1 className="text-lg font-semibold tracking-tight">
+                RoK Kingdom Calendar
+              </h1>
+              <p className="text-xs text-muted-foreground">
+                Days 1–130 Event Tracker
+              </p>
+            </div>
+          </div>
 
-    {/* Navigation */}
-    <div className="flex gap-3 mt-1 text-sm">
-      <Link
-        href="/"
-        className="text-muted-foreground hover:text-foreground transition"
-      >
-        Calendar
-      </Link>
-      <Link
-        href="/calculator"
-        className="text-muted-foreground hover:text-foreground transition"
-      >
-        Calculator
-      </Link>
-    </div>
-  </div>
-</div>
+          <nav className="hidden md:flex items-center gap-4">
+            <Link
+              href="/"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition"
+            >
+              Calendar
+            </Link>
+            <Link
+              href="/calculator"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition"
+            >
+              Calculator
+            </Link>
+          </nav>
+        </div>
 
+        {/* RIGHT: User */}
         <div className="flex items-center gap-3">
           {permissions.isAuthenticated ? (
             <>
               <div className="flex items-center gap-2 text-sm">
                 <UserCircle className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground hidden sm:inline">{userEmail}</span>
+                <span className="text-muted-foreground hidden sm:inline">
+                  {userEmail}
+                </span>
+
                 {permissions.isAdmin && (
                   <Badge variant="default" className="gap-1">
                     <Shield className="h-3 w-3" />
                     Admin
                   </Badge>
                 )}
-                {permissions.isEditor && !permissions.isAdmin && (
-                  <Badge variant="secondary">Editor</Badge>
-                )}
               </div>
+
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
@@ -90,6 +89,7 @@ export function Header({ permissions, userEmail }: HeaderProps) {
             </div>
           )}
         </div>
+
       </div>
     </header>
   )
