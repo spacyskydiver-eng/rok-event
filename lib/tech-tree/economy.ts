@@ -126,7 +126,7 @@ export const economyTree: TechNode[] = [
     maxLevel: 5,
     icon: '/tech/handcart.png',
     x: 5 * COL,
-    y: 1 * ROW,
+    y: 0 * ROW,
     parents: ['chisel'],
   },
   {
@@ -136,7 +136,7 @@ export const economyTree: TechNode[] = [
     maxLevel: 5,
     icon: '/tech/multilayer.png',
     x: 5 * COL,
-    y: 3 * ROW,
+    y: 2 * ROW,
     parents: ['writing'],
   },
   {
@@ -146,7 +146,7 @@ export const economyTree: TechNode[] = [
     maxLevel: 5,
     icon: '/tech/placer.png',
     x: 5 * COL,
-    y: 5 * ROW,
+    y: 4 * ROW,
     parents: ['metalworking'],
   },
 
@@ -158,7 +158,7 @@ export const economyTree: TechNode[] = [
     maxLevel: 5,
     icon: '/tech/wheel.png',
     x: 6 * COL,
-    y: 1 * ROW, // BEHIND + ABOVE Jewelry
+    y: 0 * ROW, // BEHIND + ABOVE Jewelry
     parents: ['handcart'], // ONLY
   },
   {
@@ -168,7 +168,7 @@ export const economyTree: TechNode[] = [
     maxLevel: 1,
     icon: '/tech/jewelry.png',
     x: 6 * COL,
-    y: 3 * ROW,
+    y: 2 * ROW,
     parents: ['multilayer'],
   },
 
