@@ -26,7 +26,7 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
           style={{
             width: 2600,
             height: 1200,
-            transform: 'scale(0.92)', // slightly zoomed out (adjust 0.88–0.96)
+            transform: 'scale(0.8)', // slightly zoomed out (adjust 0.88–0.96)
           }}
         >
           {/* Branch lines */}

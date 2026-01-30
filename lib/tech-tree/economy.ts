@@ -4,8 +4,8 @@ import type { TechNode } from '@/lib/tech-tree/types'
 /**
  * GRID TUNING (RoK-style tight layout)
  */
-const COL = 320   // horizontal spacing (TIGHTER)
-const ROW = 130   // vertical spacing (TIGHTER)
+const COL = 300   // horizontal spacing (TIGHTER)
+const ROW = 120   // vertical spacing (TIGHTER)
 
 export const economyTree: TechNode[] = [
   // ===== COLUMN 0 =====
