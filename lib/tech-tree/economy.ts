@@ -1,29 +1,35 @@
-// lib/tech-tree/economy.ts
 import type { TechNode } from '@/components/tech-tree/TechTree'
 
-const COL = 420
-const ROW = 170
+/**
+ * GRID
+ * Each column is one tech tier
+ * Each row is vertical alignment
+ */
+const COL = 380
+const ROW = 160
 
 export const economyTree: TechNode[] = [
-  // =============== PAGE 1 (Quarrying → Metallurgy) ===============
+  // ===== COLUMN 0 =====
   {
     id: 'quarrying',
     name: 'Quarrying',
     level: 0,
     maxLevel: 1,
     icon: '/tech/quarrying.png',
-    x: COL * 0,
-    y: ROW * 1,
+    x: 0 * COL,
+    y: 2 * ROW,
     parents: [],
   },
+
+  // ===== COLUMN 1 =====
   {
     id: 'irrigation',
     name: 'Irrigation',
     level: 0,
     maxLevel: 5,
     icon: '/tech/irrigation.png',
-    x: COL * 1,
-    y: ROW * 0,
+    x: 1 * COL,
+    y: 1 * ROW,
     parents: ['quarrying'],
   },
   {
@@ -32,18 +38,20 @@ export const economyTree: TechNode[] = [
     level: 0,
     maxLevel: 5,
     icon: '/tech/handsaw.png',
-    x: COL * 1,
-    y: ROW * 2,
+    x: 1 * COL,
+    y: 3 * ROW,
     parents: ['quarrying'],
   },
+
+  // ===== COLUMN 2 =====
   {
     id: 'sickle',
     name: 'Sickle',
     level: 0,
     maxLevel: 5,
     icon: '/tech/sickle.png',
-    x: COL * 2,
-    y: ROW * 0,
+    x: 2 * COL,
+    y: 0 * ROW,
     parents: ['irrigation'],
   },
   {
@@ -52,10 +60,9 @@ export const economyTree: TechNode[] = [
     level: 0,
     maxLevel: 5,
     icon: '/tech/masonry.png',
-    x: COL * 2,
-    y: ROW * 1,
-    // IMPORTANT: RoK shows Masonry requires BOTH
-    parents: ['irrigation', 'handsaw'],
+    x: 2 * COL,
+    y: 2 * ROW,
+    parents: ['irrigation', 'handsaw'], // IMPORTANT
   },
   {
     id: 'handaxe',
@@ -63,30 +70,32 @@ export const economyTree: TechNode[] = [
     level: 0,
     maxLevel: 5,
     icon: '/tech/handaxe.png',
-    x: COL * 2,
-    y: ROW * 2,
+    x: 2 * COL,
+    y: 4 * ROW,
     parents: ['handsaw'],
   },
+
+  // ===== COLUMN 3 =====
   {
     id: 'metallurgy',
     name: 'Metallurgy',
     level: 0,
     maxLevel: 1,
     icon: '/tech/metallurgy.png',
-    x: COL * 3,
-    y: ROW * 1,
+    x: 3 * COL,
+    y: 2 * ROW,
     parents: ['masonry'],
   },
 
-  // =============== PAGE 2 (Metallurgy → Handcart / Multilayer / Placer) ===============
+  // ===== COLUMN 4 =====
   {
     id: 'chisel',
     name: 'Chisel',
     level: 0,
     maxLevel: 5,
     icon: '/tech/chisel.png',
-    x: COL * 4,
-    y: ROW * 0,
+    x: 4 * COL,
+    y: 0 * ROW,
     parents: ['metallurgy'],
   },
   {
@@ -95,8 +104,8 @@ export const economyTree: TechNode[] = [
     level: 0,
     maxLevel: 5,
     icon: '/tech/writing.png',
-    x: COL * 4,
-    y: ROW * 1,
+    x: 4 * COL,
+    y: 2 * ROW,
     parents: ['metallurgy'],
   },
   {
@@ -105,54 +114,53 @@ export const economyTree: TechNode[] = [
     level: 0,
     maxLevel: 5,
     icon: '/tech/metalworking.png',
-    x: COL * 4,
-    y: ROW * 2,
+    x: 4 * COL,
+    y: 4 * ROW,
     parents: ['metallurgy'],
   },
+
+  // ===== COLUMN 5 =====
   {
     id: 'handcart',
     name: 'Handcart',
     level: 0,
     maxLevel: 5,
     icon: '/tech/handcart.png',
-    x: COL * 5,
-    y: ROW * 0,
+    x: 5 * COL,
+    y: 1 * ROW,
     parents: ['chisel'],
   },
   {
-    id: 'multilayer_structure',
+    id: 'multilayer',
     name: 'Multilayer Structure',
     level: 0,
     maxLevel: 5,
-    icon: '/tech/multilayer-structure.png',
-    x: COL * 5,
-    y: ROW * 1,
+    icon: '/tech/multilayer.png',
+    x: 5 * COL,
+    y: 2 * ROW,
     parents: ['writing'],
   },
   {
-    id: 'placer_mining',
+    id: 'placer',
     name: 'Placer Mining',
     level: 0,
     maxLevel: 5,
-    icon: '/tech/placer-mining.png',
-    x: COL * 5,
-    y: ROW * 2,
+    icon: '/tech/placer.png',
+    x: 5 * COL,
+    y: 4 * ROW,
     parents: ['metalworking'],
   },
 
-  // =============== PAGE 3 (Wheel / Jewelry / Plow / Sawmill) ===============
+  // ===== COLUMN 6 =====
   {
     id: 'wheel',
     name: 'Wheel',
     level: 0,
     maxLevel: 5,
     icon: '/tech/wheel.png',
-    // YOUR REQUIREMENT:
-    // "Wheel behind Jewelry, but in line with Handcart (behind but higher)"
-    // → Same row as Handcart, one column before Jewelry
-    x: COL * 6,
-    y: ROW * 0,
-    parents: ['handcart'],
+    x: 6 * COL,
+    y: 1 * ROW, // ABOVE Jewelry, same column line
+    parents: ['handcart'], // ONLY parent
   },
   {
     id: 'jewelry',
@@ -160,19 +168,20 @@ export const economyTree: TechNode[] = [
     level: 0,
     maxLevel: 1,
     icon: '/tech/jewelry.png',
-    x: COL * 7,
-    y: ROW * 1,
-    // Wheel must NOT connect to Jewelry
-    parents: ['multilayer_structure'],
+    x: 6 * COL,
+    y: 3 * ROW,
+    parents: ['multilayer'],
   },
+
+  // ===== COLUMN 7 =====
   {
     id: 'plow',
     name: 'Plow',
     level: 0,
     maxLevel: 10,
     icon: '/tech/plow.png',
-    x: COL * 8,
-    y: ROW * 0,
+    x: 7 * COL,
+    y: 2 * ROW,
     parents: ['jewelry'],
   },
   {
@@ -181,20 +190,20 @@ export const economyTree: TechNode[] = [
     level: 0,
     maxLevel: 10,
     icon: '/tech/sawmill.png',
-    x: COL * 8,
-    y: ROW * 2,
-    parents: ['jewelry'],
+    x: 7 * COL,
+    y: 3 * ROW,
+    parents: ['jewelry', 'engineering'], // IMPORTANT
   },
 
-  // =============== PAGE 4 (Scythe / Engineering / Whipsaw / Mathematics / Open-pit / Coinage) ===============
+  // ===== COLUMN 8 =====
   {
     id: 'scythe',
     name: 'Scythe',
     level: 0,
     maxLevel: 10,
     icon: '/tech/scythe.png',
-    x: COL * 9,
-    y: ROW * 0,
+    x: 8 * COL,
+    y: 0 * ROW,
     parents: ['plow'],
   },
   {
@@ -203,10 +212,9 @@ export const economyTree: TechNode[] = [
     level: 0,
     maxLevel: 10,
     icon: '/tech/engineering.png',
-    x: COL * 9,
-    y: ROW * 1,
-    // YOU SAID: "Sawmill should connect to engineering too"
-    parents: ['sawmill', 'plow'],
+    x: 8 * COL,
+    y: 2 * ROW,
+    parents: ['plow'],
   },
   {
     id: 'whipsaw',
@@ -214,28 +222,32 @@ export const economyTree: TechNode[] = [
     level: 0,
     maxLevel: 10,
     icon: '/tech/whipsaw.png',
-    x: COL * 9,
-    y: ROW * 2,
+    x: 8 * COL,
+    y: 4 * ROW,
     parents: ['sawmill'],
   },
+
+  // ===== COLUMN 9 =====
   {
     id: 'mathematics',
     name: 'Mathematics',
     level: 0,
     maxLevel: 10,
     icon: '/tech/mathematics.png',
-    x: COL * 10,
-    y: ROW * 1,
+    x: 9 * COL,
+    y: 2 * ROW,
     parents: ['engineering'],
   },
+
+  // ===== COLUMN 10 =====
   {
-    id: 'open_pit_quarry',
+    id: 'openpit',
     name: 'Open-pit Quarry',
     level: 0,
     maxLevel: 10,
-    icon: '/tech/open-pit-quarry.png',
-    x: COL * 11,
-    y: ROW * 0,
+    icon: '/tech/openpit.png',
+    x: 10 * COL,
+    y: 1 * ROW,
     parents: ['mathematics'],
   },
   {
@@ -244,60 +256,8 @@ export const economyTree: TechNode[] = [
     level: 0,
     maxLevel: 10,
     icon: '/tech/coinage.png',
-    x: COL * 11,
-    y: ROW * 2,
+    x: 10 * COL,
+    y: 3 * ROW,
     parents: ['mathematics'],
-  },
-
-  // =============== PAGE 5 (Stone Saw / Machinery / Shaft Mining / Carriage / Cutting & Polishing) ===============
-  {
-    id: 'stone_saw',
-    name: 'Stone Saw',
-    level: 0,
-    maxLevel: 10,
-    icon: '/tech/stone-saw.png',
-    x: COL * 12,
-    y: ROW * 0,
-    parents: ['open_pit_quarry'],
-  },
-  {
-    id: 'machinery',
-    name: 'Machinery',
-    level: 0,
-    maxLevel: 10,
-    icon: '/tech/machinery.png',
-    x: COL * 12,
-    y: ROW * 1,
-    parents: ['coinage'],
-  },
-  {
-    id: 'shaft_mining',
-    name: 'Shaft Mining',
-    level: 0,
-    maxLevel: 10,
-    icon: '/tech/shaft-mining.png',
-    x: COL * 12,
-    y: ROW * 2,
-    parents: ['coinage'],
-  },
-  {
-    id: 'carriage',
-    name: 'Carriage',
-    level: 0,
-    maxLevel: 10,
-    icon: '/tech/carriage.png',
-    x: COL * 13,
-    y: ROW * 0,
-    parents: ['machinery'],
-  },
-  {
-    id: 'cutting_polishing',
-    name: 'Cutting & Polishing',
-    level: 0,
-    maxLevel: 10,
-    icon: '/tech/cutting-polishing.png',
-    x: COL * 14,
-    y: ROW * 1,
-    parents: ['carriage'],
   },
 ]
