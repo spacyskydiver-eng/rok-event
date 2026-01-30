@@ -1,8 +1,8 @@
 // lib/tech-tree/economy.ts
 import type { TechNode } from '@/components/tech-tree/TechTree'
 
-const COL = 520
-const ROW = 220
+const COL = 420
+const ROW = 170
 
 export const economyTree: TechNode[] = [
   // =============== PAGE 1 (Quarrying → Metallurgy) ===============
