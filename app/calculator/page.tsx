@@ -18,6 +18,8 @@ import TechTree from '@/components/tech-tree/TechTree'
 import { economyTree } from '@/lib/tech-tree/economy'
 
 
+
+
 type Speedups = {
   universal: number
   building: number
@@ -524,7 +526,11 @@ const onCalculateGoalsClick = () => {
       {/* Economy Tech Tree */}
 <Card className="border-white/10 bg-black/30">
   <CardContent className="p-6">
-    <TechTree/>
+<TechTree
+  title="Economic Technology"
+  nodes={economyTree}
+/>
+
   </CardContent>
 </Card>
 
