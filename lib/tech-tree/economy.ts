@@ -1,29 +1,24 @@
-export type TechTreeNode = {
-  id: string
-  name: string
-  level: number
-  maxLevel: number
-  x: number
-  y: number
-  parents?: string[]
-}
+import type { TechNode } from '@/components/tech-tree/TechTree'
 
-export const economyTree: TechTreeNode[] = [
+export const economyTree: TechNode[] = [
   {
     id: 'quarrying',
     name: 'Quarrying',
     level: 1,
     maxLevel: 1,
-    x: 0,
-    y: 100,
+    icon: '/icons/quarrying.png',
+    x: 80,
+    y: 220,
+    parents: [],
   },
   {
     id: 'irrigation',
     name: 'Irrigation',
     level: 0,
     maxLevel: 5,
-    x: 260,
-    y: 0,
+    icon: '/icons/irrigation.png',
+    x: 380,
+    y: 150,
     parents: ['quarrying'],
   },
   {
@@ -31,10 +26,42 @@ export const economyTree: TechTreeNode[] = [
     name: 'Handsaw',
     level: 0,
     maxLevel: 5,
-    x: 260,
-    y: 200,
+    icon: '/icons/handsaw.png',
+    x: 380,
+    y: 290,
     parents: ['quarrying'],
   },
+  {
+    id: 'sickle',
+    name: 'Sickle',
+    level: 0,
+    maxLevel: 5,
+    icon: '/icons/sickle.png',
+    x: 700,
+    y: 90,
+    parents: ['irrigation'],
+  },
+  {
+    id: 'masonry',
+    name: 'Masonry',
+    level: 0,
+    maxLevel: 5,
+    icon: '/icons/masonry.png',
+    x: 700,
+    y: 200,
+    parents: ['irrigation'],
+  },
+  {
+    id: 'handaxe',
+    name: 'Handaxe',
+    level: 0,
+    maxLevel: 5,
+    icon: '/icons/handaxe.png',
+    x: 700,
+    y: 320,
+    parents: ['handsaw'],
+  },
 ]
+
 
 
