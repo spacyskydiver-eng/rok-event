@@ -14,6 +14,9 @@ import { useUserState } from '@/lib/user-state'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import type { CalendarEventWithMeta } from '@/lib/types'
 import { getEvents } from '@/lib/actions'
+import TechTree from '@/components/tech-tree/TechTree'
+import { economyTree } from '@/lib/tech-tree/economy'
+
 
 type Speedups = {
   universal: number
@@ -251,13 +254,31 @@ export default function CalculatorPage() {
     return () => clearTimeout(t)
   }, [isSignedIn, speedups, resources])
 
-  const onCalculateGoalsClick = () => {
-    if (!isSignedIn) {
-      setShowSignInGate(true)
-      return
-    }
-    alert('Goals calculator is next — you are signed in, so you’ll get access when it goes live.')
+const onCalculateGoalsClick = () => {
+  if (!isSignedIn) {
+    setShowSignInGate(true)
+    return
   }
+
+  const result = {
+    research: goals.researchSpeedups - effectiveTotals.speedups.research,
+    building: goals.buildingSpeedups - effectiveTotals.speedups.building,
+    training: goals.trainingSpeedups - effectiveTotals.speedups.training,
+  }
+
+  console.log('Goal result:', {
+    missing: {
+      research: Math.max(0, result.research),
+      building: Math.max(0, result.building),
+      training: Math.max(0, result.training),
+    },
+    surplus: {
+      research: Math.max(0, -result.research),
+      building: Math.max(0, -result.building),
+      training: Math.max(0, -result.training),
+    },
+  })
+}
 
   useEffect(() => {
     let cancelled = false
@@ -499,6 +520,17 @@ export default function CalculatorPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Economy Tech Tree */}
+<Card className="border-white/10 bg-black/30">
+  <CardContent className="p-6">
+    <TechTree
+      title="Economic Technology"
+      nodes={economyTree}
+    />
+  </CardContent>
+</Card>
+
 
       {/* =========================================================
           Guided Goals (THIS is the Step 3 block)

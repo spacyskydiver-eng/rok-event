@@ -7,6 +7,8 @@ import { BundleManager } from '@/components/bundle-manager'
 import { getKingdomSettings } from '@/lib/actions'
 import { SaveNotice } from '@/components/save-notice'
 import { getAuthStatus } from '@/lib/auth'
+import TechTree from '@/components/tech-tree/TechTree'
+import { economyTree } from '@/lib/tech-tree/economy'
 
 
 export default async function HomePage() {
