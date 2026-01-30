@@ -180,7 +180,7 @@ export const economyTree: TechNode[] = [
     maxLevel: 10,
     icon: '/tech/plow.png',
     x: 7 * COL,
-    y: 2 * ROW,
+    y: 1 * ROW,
     parents: ['jewelry'],
   },
   {
@@ -190,7 +190,7 @@ export const economyTree: TechNode[] = [
     maxLevel: 10,
     icon: '/tech/sawmill.png',
     x: 7 * COL,
-    y: 4 * ROW,
+    y: 3 * ROW,
     parents: ['jewelry', 'engineering'],
   },
 
