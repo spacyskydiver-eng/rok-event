@@ -16,6 +16,7 @@ import type { CalendarEventWithMeta } from '@/lib/types'
 import { getEvents } from '@/lib/actions'
 import TechTree from '@/components/tech-tree/TechTree'
 import { economyTree } from '@/lib/tech-tree/economy'
+import { militaryTree } from '@/lib/tech-tree/military'
 
 
 
@@ -38,6 +39,7 @@ function clampNum(n: unknown) {
   const x = Number(n)
   return Number.isFinite(x) && x > 0 ? x : 0
 }
+
 
 function utcDayNumberFromStart(startDateYYYYMMDD: string) {
   const [y, m, d] = startDateYYYYMMDD.split('-').map(Number)
@@ -124,14 +126,12 @@ export default function CalculatorPage() {
     setSpeedups,
     setResources,
   } = useUserState()
-
+  const [activeTree, setActiveTree] =
+  useState<'economy' | 'military'>('economy')
   const [includeEventRewards, setIncludeEventRewards] = useState(true)
-
   const [isSignedIn, setIsSignedIn] = useState(false)
   const [saving, setSaving] = useState(false)
-
   const [showSignInGate, setShowSignInGate] = useState(false)
-
   const [currentDay, setCurrentDay] = useState<number | null>(null)
   const [events, setEvents] = useState<CalendarEventWithMeta[]>([])
 
@@ -526,9 +526,38 @@ const onCalculateGoalsClick = () => {
       {/* Economy Tech Tree */}
 <Card className="border-white/10 bg-black/30">
   <CardContent className="p-6">
+
+<div className="flex gap-3 mb-4">
+  <button
+    onClick={() => setActiveTree('economy')}
+    className={activeTree === 'economy'
+      ? 'ring-2 ring-blue-400'
+      : 'opacity-60'}
+  >
+    🏛 Economy
+  </button>
+
+  <button
+    onClick={() => setActiveTree('military')}
+    className={activeTree === 'military'
+      ? 'ring-2 ring-red-400'
+      : 'opacity-60'}
+  >
+    ⚔️ Military
+  </button>
+</div>
+
+
 <TechTree
-  title="Economic Technology"
-  nodes={economyTree}
+  title={activeTree === 'economy'
+    ? 'Economic Technology'
+    : 'Military Technology'}
+nodes={(activeTree === 'economy' ? economyTree : militaryTree).map((n: any) => ({
+  ...n,
+  x: n.x ?? 0,
+  y: n.y ?? 0,
+  parents: n.parents ?? [],
+}))}
 />
 
   </CardContent>
