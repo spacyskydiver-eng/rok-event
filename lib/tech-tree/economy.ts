@@ -1,38 +1,40 @@
-export const economyTree = [
+export type TechTreeNode = {
+  id: string
+  name: string
+  level: number
+  maxLevel: number
+  x: number
+  y: number
+  parents?: string[]
+}
+
+export const economyTree: TechTreeNode[] = [
   {
     id: 'quarrying',
     name: 'Quarrying',
-    level: 0,
+    level: 1,
     maxLevel: 1,
-    icon: '/tech/economy/quarrying.png',
+    x: 0,
+    y: 100,
   },
   {
     id: 'irrigation',
     name: 'Irrigation',
     level: 0,
     maxLevel: 5,
-    icon: '/tech/economy/irrigation.png',
+    x: 260,
+    y: 0,
+    parents: ['quarrying'],
   },
   {
     id: 'handsaw',
     name: 'Handsaw',
     level: 0,
     maxLevel: 5,
-    icon: '/tech/economy/handsaw.png',
-  },
-  {
-    id: 'masonry',
-    name: 'Masonry',
-    level: 0,
-    maxLevel: 5,
-    icon: '/tech/economy/masonry.png',
-  },
-  {
-    id: 'sickle',
-    name: 'Sickle',
-    level: 0,
-    maxLevel: 5,
-    icon: '/tech/economy/sickle.png',
+    x: 260,
+    y: 200,
+    parents: ['quarrying'],
   },
 ]
+
 
