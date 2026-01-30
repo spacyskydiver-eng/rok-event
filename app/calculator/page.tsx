@@ -15,9 +15,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import type { CalendarEventWithMeta } from '@/lib/types'
 import { getEvents } from '@/lib/actions'
 
-
-
-
 type Speedups = {
   universal: number
   building: number
@@ -70,39 +67,73 @@ function aggregateEventRewards(events: any[]) {
   return { speedups, resources, other }
 }
 
+/* =========================================================
+   Guided Goals (Step 3 UI) — RokHub-ish structure (not copy)
+   - Tabs for: Research / Buildings / Training
+   - Node cards with slider progress
+   - Persists using your existing `goals` in Zustand
+========================================================= */
+
+type GoalTab = 'research' | 'buildings' | 'training'
+
+type GuidedNode = {
+  id: string
+  title: string
+  subtitle?: string
+  max: number
+}
+
+const RESEARCH_NODES: GuidedNode[] = [
+  { id: 'economy_iron_working', title: 'Iron Working', subtitle: 'Economy Tech', max: 5 },
+  { id: 'economy_improved_fletching', title: 'Improved Fletching', subtitle: 'Economy Tech', max: 5 },
+  { id: 'economy_horsemanship', title: 'Horsemanship', subtitle: 'Economy Tech', max: 5 },
+  { id: 'economy_tracking', title: 'Tracking', subtitle: 'Economy Tech', max: 5 },
+  { id: 'economy_pathfinding', title: 'Pathfinding', subtitle: 'Economy Tech', max: 5 },
+]
+
+const BUILDING_NODES: GuidedNode[] = [
+  { id: 'building_city_hall', title: 'City Hall', subtitle: 'Main Building', max: 25 },
+  { id: 'building_academy', title: 'Academy', subtitle: 'Research', max: 25 },
+  { id: 'building_barracks', title: 'Barracks', subtitle: 'Training', max: 25 },
+]
+
+const TRAINING_NODES: GuidedNode[] = [
+  { id: 'training_t3', title: 'Unlock T3', subtitle: 'Troops', max: 1 },
+  { id: 'training_t4', title: 'Unlock T4', subtitle: 'Troops', max: 1 },
+  { id: 'training_t5', title: 'Unlock T5', subtitle: 'Troops', max: 1 },
+]
+
+function getGoalNumber(goals: any, key: string) {
+  const v = goals?.guided?.[key]
+  return Number.isFinite(Number(v)) ? Number(v) : 0
+}
+
 export default function CalculatorPage() {
-  // Selected events (from calendar selection store)
-
-
-
-  // ✅ Shared persisted state (works signed out via localStorage)
-const {
-  kingdomStartDate,
-  speedups,
-  resources,
-  goals,
-  setGoals,
-  setKingdomStartDate,
-  setSpeedups,
-  setResources,
-} = useUserState()
-
+  const {
+    kingdomStartDate,
+    speedups,
+    resources,
+    goals,
+    setGoals,
+    setKingdomStartDate,
+    setSpeedups,
+    setResources,
+  } = useUserState()
 
   const [includeEventRewards, setIncludeEventRewards] = useState(true)
 
-  // Signed-in detection: if Supabase inventory exists, we consider user signed in.
   const [isSignedIn, setIsSignedIn] = useState(false)
   const [saving, setSaving] = useState(false)
 
-  // Gate dialog for non-signed in users
   const [showSignInGate, setShowSignInGate] = useState(false)
 
-  // Current day derived from kingdomStartDate
   const [currentDay, setCurrentDay] = useState<number | null>(null)
   const [events, setEvents] = useState<CalendarEventWithMeta[]>([])
 
+  // Guided goals UI state (local UI only, persisted values live in zustand)
+  const [goalTab, setGoalTab] = useState<GoalTab>('research')
+  const [showRawGoalTargets, setShowRawGoalTargets] = useState(false)
 
-  // 1) Keep currentDay in sync + prune past events whenever kingdomStartDate changes (SIGNED IN OR OUT)
   useEffect(() => {
     if (!kingdomStartDate) {
       setCurrentDay(null)
@@ -110,11 +141,8 @@ const {
     }
     const day = utcDayNumberFromStart(kingdomStartDate)
     setCurrentDay(day)
-    
   }, [kingdomStartDate])
 
-  // 2) Signed-in boot: hydrate state from Supabase ONLY if user is signed in.
-  //    If signed out, this returns null and we keep local state.
   useEffect(() => {
     let cancelled = false
 
@@ -130,15 +158,12 @@ const {
 
         setIsSignedIn(true)
 
-        // Pull kingdom settings too (only when signed in)
         const ks = await getKingdomSettings()
         if (cancelled) return
 
         const serverStart = ks?.kingdom_start_date ?? null
-        // Only overwrite local if server has a value (avoid nuking local unsigned data)
         if (serverStart) setKingdomStartDate(serverStart)
 
-        // Hydrate calculator inventory
         setSpeedups({
           universal: clampNum(inv.speed_universal_minutes),
           building: clampNum(inv.speed_building_minutes),
@@ -164,22 +189,17 @@ const {
     }
   }, [setKingdomStartDate, setSpeedups, setResources])
 
-// Eligible calendar events (automatic, no manual selection)
-const eligibleEvents = useMemo(() => {
-  if (!currentDay) return events
+  const eligibleEvents = useMemo(() => {
+    if (!currentDay) return events
+    return events.filter((e) => {
+      if ((e.end_day ?? 0) < currentDay) return false
+      return true
+    })
+  }, [events, currentDay])
 
-  return events.filter(e => {
-    if ((e.end_day ?? 0) < currentDay) return false
-    return true
-  })
-}, [events, currentDay])
-
-
-
-const eventRewards = useMemo(() => {
-  return aggregateEventRewards(eligibleEvents)
-}, [eligibleEvents])
-
+  const eventRewards = useMemo(() => {
+    return aggregateEventRewards(eligibleEvents)
+  }, [eligibleEvents])
 
   const effectiveTotals = useMemo(() => {
     const baseSpeed = { ...speedups }
@@ -205,7 +225,6 @@ const eventRewards = useMemo(() => {
     }
   }, [speedups, resources, includeEventRewards, eventRewards])
 
-  // 3) Auto-save to Supabase when signed in (local always persists regardless)
   useEffect(() => {
     if (!isSignedIn) return
 
@@ -233,38 +252,47 @@ const eventRewards = useMemo(() => {
   }, [isSignedIn, speedups, resources])
 
   const onCalculateGoalsClick = () => {
-    // This is the “locked” feature gate you asked for.
     if (!isSignedIn) {
       setShowSignInGate(true)
       return
     }
-    // Later: route to goals section / enable calculation.
-    // For now keep it clean:
     alert('Goals calculator is next — you are signed in, so you’ll get access when it goes live.')
   }
-useEffect(() => {
-  let cancelled = false
 
-  async function loadEvents() {
-    try {
-      const data = await getEvents()
-      if (!cancelled && Array.isArray(data)) {
-        setEvents(data)
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadEvents() {
+      try {
+        const data = await getEvents()
+        if (!cancelled && Array.isArray(data)) {
+          setEvents(data)
+        }
+      } catch (e) {
+        console.error('Failed to load events:', e)
       }
-    } catch (e) {
-      console.error('Failed to load events:', e)
     }
-  }
 
-  loadEvents()
-  return () => {
-    cancelled = true
+    loadEvents()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const nodesForTab: GuidedNode[] =
+    goalTab === 'research' ? RESEARCH_NODES : goalTab === 'buildings' ? BUILDING_NODES : TRAINING_NODES
+
+  const setGuidedNode = (id: string, value: number) => {
+    setGoals({
+      guided: {
+        ...(goals as any)?.guided,
+        [id]: value,
+      },
+    } as any)
   }
-}, [])
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
-      {/* Notice for signed-out users */}
       {!isSignedIn && (
         <div className="mb-2">
           <SaveNotice />
@@ -272,17 +300,12 @@ useEffect(() => {
       )}
 
       <div className="flex items-center justify-between">
-        <Link
-          href="/"
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
+        <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
           ← Back to Calendar
         </Link>
 
         {isSignedIn && (
-          <div className="text-xs text-muted-foreground">
-            {saving ? 'Saving…' : 'Saved'}
-          </div>
+          <div className="text-xs text-muted-foreground">{saving ? 'Saving…' : 'Saved'}</div>
         )}
       </div>
 
@@ -294,8 +317,7 @@ useEffect(() => {
 
         {kingdomStartDate ? (
           <p className="text-xs text-muted-foreground">
-            Kingdom Start Date:{' '}
-            <span className="text-foreground">{kingdomStartDate}</span>
+            Kingdom Start Date: <span className="text-foreground">{kingdomStartDate}</span>
             {currentDay ? (
               <>
                 {' '}
@@ -326,7 +348,7 @@ useEffect(() => {
                 <Input
                   type="number"
                   value={speedups.universal}
-                  onChange={e => setSpeedups({ universal: clampNum(e.target.value) })}
+                  onChange={(e) => setSpeedups({ universal: clampNum(e.target.value) })}
                 />
               </div>
 
@@ -335,7 +357,7 @@ useEffect(() => {
                 <Input
                   type="number"
                   value={speedups.building}
-                  onChange={e => setSpeedups({ building: clampNum(e.target.value) })}
+                  onChange={(e) => setSpeedups({ building: clampNum(e.target.value) })}
                 />
               </div>
 
@@ -344,7 +366,7 @@ useEffect(() => {
                 <Input
                   type="number"
                   value={speedups.research}
-                  onChange={e => setSpeedups({ research: clampNum(e.target.value) })}
+                  onChange={(e) => setSpeedups({ research: clampNum(e.target.value) })}
                 />
               </div>
 
@@ -353,7 +375,7 @@ useEffect(() => {
                 <Input
                   type="number"
                   value={speedups.training}
-                  onChange={e => setSpeedups({ training: clampNum(e.target.value) })}
+                  onChange={(e) => setSpeedups({ training: clampNum(e.target.value) })}
                 />
               </div>
             </div>
@@ -368,7 +390,7 @@ useEffect(() => {
                 <Input
                   type="number"
                   value={resources.food}
-                  onChange={e => setResources({ food: clampNum(e.target.value) })}
+                  onChange={(e) => setResources({ food: clampNum(e.target.value) })}
                 />
               </div>
 
@@ -377,7 +399,7 @@ useEffect(() => {
                 <Input
                   type="number"
                   value={resources.wood}
-                  onChange={e => setResources({ wood: clampNum(e.target.value) })}
+                  onChange={(e) => setResources({ wood: clampNum(e.target.value) })}
                 />
               </div>
 
@@ -386,7 +408,7 @@ useEffect(() => {
                 <Input
                   type="number"
                   value={resources.stone}
-                  onChange={e => setResources({ stone: clampNum(e.target.value) })}
+                  onChange={(e) => setResources({ stone: clampNum(e.target.value) })}
                 />
               </div>
 
@@ -395,7 +417,7 @@ useEffect(() => {
                 <Input
                   type="number"
                   value={resources.gold}
-                  onChange={e => setResources({ gold: clampNum(e.target.value) })}
+                  onChange={(e) => setResources({ gold: clampNum(e.target.value) })}
                 />
               </div>
             </div>
@@ -415,19 +437,17 @@ useEffect(() => {
             <Label>Include rewards from calendar events</Label>
           </div>
 
-{includeEventRewards && (
-  <div className="space-y-4">
-    <RewardsSummary events={eligibleEvents as any} />
+          {includeEventRewards && (
+            <div className="space-y-4">
+              <RewardsSummary events={eligibleEvents as any} />
 
-    
-
-    <div className="text-xs text-muted-foreground">
-      {currentDay
-        ? `Events ending before Day ${currentDay} are automatically ignored.`
-        : `Set a kingdom start date to automatically ignore past events.`}
-    </div>
-  </div>
-)}
+              <div className="text-xs text-muted-foreground">
+                {currentDay
+                  ? `Events ending before Day ${currentDay} are automatically ignored.`
+                  : `Set a kingdom start date to automatically ignore past events.`}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -436,6 +456,7 @@ useEffect(() => {
         <CardHeader>
           <CardTitle>Effective Totals</CardTitle>
         </CardHeader>
+
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
           <div className="space-y-2">
             <div className="font-medium text-muted-foreground">Speedups (minutes)</div>
@@ -479,132 +500,178 @@ useEffect(() => {
         </CardContent>
       </Card>
 
-<Card>
-  <CardHeader>
-    <CardTitle>Set Goals (Guided)</CardTitle>
-  </CardHeader>
-</Card>
+      {/* =========================================================
+          Guided Goals (THIS is the Step 3 block)
+          - Tabs
+          - Node cards
+          - Sliders
+          - Persists to goals.guided
+      ========================================================= */}
+      <Card className="border-white/10 bg-black/30 shadow-[0_0_60px_rgba(34,197,94,0.08)]">
+        <CardHeader>
+          <CardTitle>Set Goals (Guided)</CardTitle>
+        </CardHeader>
 
-{/* Guided Goals */}
-<Card className="border-white/10 bg-black/30 shadow-[0_0_60px_rgba(34,197,94,0.08)]">
-  <CardHeader>
-    <CardTitle>Set Goals (Guided)</CardTitle>
-  </CardHeader>
+        <CardContent className="space-y-6">
+          <p className="text-sm text-muted-foreground">
+            Pick targets using a simple tree-style selector. We’ll calculate the required time, speedups, and resources automatically in the next step.
+          </p>
 
-  <CardContent className="space-y-6">
-    <p className="text-sm text-muted-foreground">
-      Choose what you want to reach. We’ll calculate the required time, speedups, and resources automatically.
-    </p>
+          {/* Tabs */}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant={goalTab === 'research' ? 'default' : 'outline'}
+              onClick={() => setGoalTab('research')}
+            >
+              Research
+            </Button>
+            <Button
+              type="button"
+              variant={goalTab === 'buildings' ? 'default' : 'outline'}
+              onClick={() => setGoalTab('buildings')}
+            >
+              Buildings
+            </Button>
+            <Button
+              type="button"
+              variant={goalTab === 'training' ? 'default' : 'outline'}
+              onClick={() => setGoalTab('training')}
+            >
+              Training
+            </Button>
 
-    {/* City Hall Goal */}
-    <div className="space-y-2">
-      <Label>Target City Hall Level</Label>
-      <Input
-        type="number"
-        min={1}
-        max={25}
-        value={goals.cityHallLevel ?? ''}
-        onChange={(e) =>
-          setGoals({
-            cityHallLevel: e.target.value
-              ? clampNum(e.target.value)
-              : null,
-          })
-        }
-        placeholder="e.g. 25"
-      />
-      <p className="text-xs text-muted-foreground">
-        Used to calculate required building time automatically.
-      </p>
-    </div>
-  </CardContent>
-</Card>
+            <div className="flex-1" />
 
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setShowRawGoalTargets((p) => !p)}
+              className="text-muted-foreground"
+            >
+              {showRawGoalTargets ? 'Hide Manual Inputs' : 'Show Manual Inputs'}
+            </Button>
+          </div>
 
-{/* Goal Targets */}
-<Card className="border-white/10 bg-black/30 shadow-[0_0_60px_rgba(59,130,246,0.08)]">
-  <CardHeader>
-    <CardTitle>Goal Targets</CardTitle>
-  </CardHeader>
+          {/* Node grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {nodesForTab.map((node) => {
+              const val = getGoalNumber(goals as any, node.id)
+              return (
+                <div
+                  key={node.id}
+                  className="rounded-xl border border-white/10 bg-black/20 p-4 shadow-[0_0_30px_rgba(255,255,255,0.04)]"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-0.5">
+                      <div className="font-semibold">{node.title}</div>
+                      {node.subtitle ? (
+                        <div className="text-xs text-muted-foreground">{node.subtitle}</div>
+                      ) : null}
+                    </div>
 
-  <CardContent className="space-y-6">
-    {/* City Hall */}
-    <div className="space-y-1">
-      <Label>Target City Hall Level (optional)</Label>
-      <Input
-        type="number"
-        min={1}
-        max={25}
-        value={goals.cityHallLevel ?? ''}
-        onChange={(e) =>
-          setGoals({
-            cityHallLevel: e.target.value
-              ? clampNum(e.target.value)
-              : null,
-          })
-        }
-        placeholder="e.g. 25"
-      />
-    </div>
+                    <div className="text-xs rounded-md border border-white/10 bg-black/30 px-2 py-1">
+                      {val}/{node.max}
+                    </div>
+                  </div>
 
-    {/* Speedup Goals */}
-    <div className="space-y-2">
-      <div className="font-medium">Required Speedups (minutes)</div>
+                  <div className="mt-4 space-y-2">
+                    <Input
+                      type="range"
+                      min={0}
+                      max={node.max}
+                      value={val}
+                      onChange={(e) => setGuidedNode(node.id, Number(e.target.value))}
+                    />
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                      <span>0</span>
+                      <span>{node.max}</span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <div className="space-y-1">
-          <Label>Research</Label>
-          <Input
-            type="number"
-            value={goals.researchSpeedups}
-            onChange={(e) =>
-              setGoals({ researchSpeedups: clampNum(e.target.value) })
-            }
-          />
-        </div>
+      {/* =========================================================
+          Manual Goal Targets (kept, but collapsible now)
+          (You already had this — we keep it for now)
+      ========================================================= */}
+      {showRawGoalTargets && (
+        <Card className="border-white/10 bg-black/30 shadow-[0_0_60px_rgba(59,130,246,0.08)]">
+          <CardHeader>
+            <CardTitle>Goal Targets (Manual)</CardTitle>
+          </CardHeader>
 
-        <div className="space-y-1">
-          <Label>Building</Label>
-          <Input
-            type="number"
-            value={goals.buildingSpeedups}
-            onChange={(e) =>
-              setGoals({ buildingSpeedups: clampNum(e.target.value) })
-            }
-          />
-        </div>
+          <CardContent className="space-y-6">
+            <div className="space-y-1">
+              <Label>Target City Hall Level (optional)</Label>
+              <Input
+                type="number"
+                min={1}
+                max={25}
+                value={goals.cityHallLevel ?? ''}
+                onChange={(e) =>
+                  setGoals({
+                    cityHallLevel: e.target.value ? clampNum(e.target.value) : null,
+                  })
+                }
+                placeholder="e.g. 25"
+              />
+            </div>
 
-        <div className="space-y-1">
-          <Label>Training</Label>
-          <Input
-            type="number"
-            value={goals.trainingSpeedups}
-            onChange={(e) =>
-              setGoals({ trainingSpeedups: clampNum(e.target.value) })
-            }
-          />
-        </div>
-      </div>
-    </div>
-  </CardContent>
-</Card>
+            <div className="space-y-2">
+              <div className="font-medium">Required Speedups (minutes)</div>
 
-      {/* This is the “calculating bit” gate */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <Label>Research</Label>
+                  <Input
+                    type="number"
+                    value={goals.researchSpeedups}
+                    onChange={(e) => setGoals({ researchSpeedups: clampNum(e.target.value) })}
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <Label>Building</Label>
+                  <Input
+                    type="number"
+                    value={goals.buildingSpeedups}
+                    onChange={(e) => setGoals({ buildingSpeedups: clampNum(e.target.value) })}
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <Label>Training</Label>
+                  <Input
+                    type="number"
+                    value={goals.trainingSpeedups}
+                    onChange={(e) => setGoals({ trainingSpeedups: clampNum(e.target.value) })}
+                  />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Button onClick={onCalculateGoalsClick} className="w-full">
         Calculate Goals
       </Button>
 
-      {/* Sign-in gate dialog */}
       <Dialog open={showSignInGate} onOpenChange={setShowSignInGate}>
         <DialogContent className="border-white/10 bg-black/70 backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle>Sign in to unlock Goals</DialogTitle>
             <DialogDescription>
-              This feature is <span className="text-foreground font-medium">free</span> - signing in just lets us
+              This feature is <span className="text-foreground font-medium">free</span> — signing in just lets us
               save your plan and keep it synced across devices.
               <br />
               <span className="text-xs text-muted-foreground">
-                No spam. No payment. No weird stuff, just progress tracking.
+                No spam. No payment. No weird stuff — just progress tracking.
               </span>
             </DialogDescription>
           </DialogHeader>
