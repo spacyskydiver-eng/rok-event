@@ -478,6 +478,49 @@ useEffect(() => {
           </div>
         </CardContent>
       </Card>
+
+<Card>
+  <CardHeader>
+    <CardTitle>Set Goals (Guided)</CardTitle>
+  </CardHeader>
+</Card>
+
+{/* Guided Goals */}
+<Card className="border-white/10 bg-black/30 shadow-[0_0_60px_rgba(34,197,94,0.08)]">
+  <CardHeader>
+    <CardTitle>Set Goals (Guided)</CardTitle>
+  </CardHeader>
+
+  <CardContent className="space-y-6">
+    <p className="text-sm text-muted-foreground">
+      Choose what you want to reach. We’ll calculate the required time, speedups, and resources automatically.
+    </p>
+
+    {/* City Hall Goal */}
+    <div className="space-y-2">
+      <Label>Target City Hall Level</Label>
+      <Input
+        type="number"
+        min={1}
+        max={25}
+        value={goals.cityHallLevel ?? ''}
+        onChange={(e) =>
+          setGoals({
+            cityHallLevel: e.target.value
+              ? clampNum(e.target.value)
+              : null,
+          })
+        }
+        placeholder="e.g. 25"
+      />
+      <p className="text-xs text-muted-foreground">
+        Used to calculate required building time automatically.
+      </p>
+    </div>
+  </CardContent>
+</Card>
+
+
 {/* Goal Targets */}
 <Card className="border-white/10 bg-black/30 shadow-[0_0_60px_rgba(59,130,246,0.08)]">
   <CardHeader>
