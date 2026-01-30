@@ -1,32 +1,38 @@
-// lib/tech-tree/economy.ts
-import type { TechNode } from '@/components/tech-tree/TechTree'
+import { TechNode } from '@/components/tech-tree/TechTree'
+
+/**
+ * GRID SYSTEM
+ * Do NOT reduce these numbers
+ */
+const COL = 420
+const ROW = 170
 
 export const economyTree: TechNode[] = [
-  // ───────────────────────────
-  // COLUMN 1
-  // ───────────────────────────
+  // ======================
+  // TIER 0 – START
+  // ======================
   {
     id: 'quarrying',
     name: 'Quarrying',
     level: 0,
     maxLevel: 1,
-    icon: '/tech/quarrying.png',
-    x: 80,
-    y: 260,
+    icon: '/icons/quarrying.png',
+    x: COL * 0,
+    y: ROW * 2,
     parents: [],
   },
 
-  // ───────────────────────────
-  // COLUMN 2
-  // ───────────────────────────
+  // ======================
+  // TIER 1
+  // ======================
   {
     id: 'irrigation',
     name: 'Irrigation',
     level: 0,
     maxLevel: 5,
-    icon: '/tech/irrigation.png',
-    x: 340,
-    y: 150,
+    icon: '/icons/irrigation.png',
+    x: COL * 1,
+    y: ROW * 1,
     parents: ['quarrying'],
   },
   {
@@ -34,23 +40,33 @@ export const economyTree: TechNode[] = [
     name: 'Handsaw',
     level: 0,
     maxLevel: 5,
-    icon: '/tech/handsaw.png',
-    x: 340,
-    y: 310,
+    icon: '/icons/handsaw.png',
+    x: COL * 1,
+    y: ROW * 2,
+    parents: ['quarrying'],
+  },
+  {
+    id: 'wheel',
+    name: 'Wheel',
+    level: 0,
+    maxLevel: 5,
+    icon: '/icons/wheel.png',
+    x: COL * 1,
+    y: ROW * 3,
     parents: ['quarrying'],
   },
 
-  // ───────────────────────────
-  // COLUMN 3
-  // ───────────────────────────
+  // ======================
+  // TIER 2
+  // ======================
   {
     id: 'sickle',
     name: 'Sickle',
     level: 0,
     maxLevel: 5,
-    icon: '/tech/sickle.png',
-    x: 600,
-    y: 90,
+    icon: '/icons/sickle.png',
+    x: COL * 2,
+    y: ROW * 0,
     parents: ['irrigation'],
   },
   {
@@ -58,47 +74,47 @@ export const economyTree: TechNode[] = [
     name: 'Masonry',
     level: 0,
     maxLevel: 5,
-    icon: '/tech/masonry.png',
-    x: 600,
-    y: 210,
-    parents: ['irrigation', 'handsaw'], // ✅ DOUBLE BRANCH
+    icon: '/icons/masonry.png',
+    x: COL * 2,
+    y: ROW * 1,
+    parents: ['irrigation', 'handsaw'],
   },
   {
     id: 'handaxe',
     name: 'Handaxe',
     level: 0,
     maxLevel: 5,
-    icon: '/tech/handaxe.png',
-    x: 600,
-    y: 370,
+    icon: '/icons/handaxe.png',
+    x: COL * 2,
+    y: ROW * 3,
     parents: ['handsaw'],
   },
 
-  // ───────────────────────────
-  // COLUMN 4
-  // ───────────────────────────
+  // ======================
+  // TIER 3 – METAL
+  // ======================
   {
     id: 'metallurgy',
     name: 'Metallurgy',
     level: 0,
     maxLevel: 1,
-    icon: '/tech/metallurgy.png',
-    x: 860,
-    y: 210,
+    icon: '/icons/metallurgy.png',
+    x: COL * 3,
+    y: ROW * 1,
     parents: ['masonry'],
   },
 
-  // ───────────────────────────
-  // COLUMN 5
-  // ───────────────────────────
+  // ======================
+  // TIER 4 – KNOWLEDGE SPLIT
+  // ======================
   {
     id: 'chisel',
     name: 'Chisel',
     level: 0,
     maxLevel: 5,
-    icon: '/tech/chisel.png',
-    x: 1120,
-    y: 90,
+    icon: '/icons/chisel.png',
+    x: COL * 4,
+    y: ROW * 0,
     parents: ['metallurgy'],
   },
   {
@@ -106,9 +122,9 @@ export const economyTree: TechNode[] = [
     name: 'Writing',
     level: 0,
     maxLevel: 5,
-    icon: '/tech/writing.png',
-    x: 1120,
-    y: 210,
+    icon: '/icons/writing.png',
+    x: COL * 4,
+    y: ROW * 1,
     parents: ['metallurgy'],
   },
   {
@@ -116,81 +132,71 @@ export const economyTree: TechNode[] = [
     name: 'Metalworking',
     level: 0,
     maxLevel: 5,
-    icon: '/tech/metalworking.png',
-    x: 1120,
-    y: 330,
+    icon: '/icons/metalworking.png',
+    x: COL * 4,
+    y: ROW * 2,
     parents: ['metallurgy'],
   },
 
-  // ───────────────────────────
-  // COLUMN 6
-  // ───────────────────────────
+  // ======================
+  // TIER 5
+  // ======================
   {
     id: 'handcart',
     name: 'Handcart',
     level: 0,
     maxLevel: 5,
-    icon: '/tech/handcart.png',
-    x: 1380,
-    y: 90,
+    icon: '/icons/handcart.png',
+    x: COL * 5,
+    y: ROW * 0,
     parents: ['chisel'],
   },
   {
-    id: 'multilayer',
+    id: 'multilayer_structure',
     name: 'Multilayer Structure',
     level: 0,
     maxLevel: 5,
-    icon: '/tech/multilayer.png',
-    x: 1380,
-    y: 210,
+    icon: '/icons/multilayer.png',
+    x: COL * 5,
+    y: ROW * 1,
     parents: ['writing'],
   },
   {
-    id: 'placer',
+    id: 'placer_mining',
     name: 'Placer Mining',
     level: 0,
     maxLevel: 5,
-    icon: '/tech/placer.png',
-    x: 1380,
-    y: 330,
+    icon: '/icons/placer_mining.png',
+    x: COL * 5,
+    y: ROW * 2,
     parents: ['metalworking'],
   },
 
-  // ───────────────────────────
-  // COLUMN 7
-  // ───────────────────────────
-  {
-    id: 'wheel',
-    name: 'Wheel',
-    level: 0,
-    maxLevel: 5,
-    icon: '/tech/wheel.png',
-    x: 1640,
-    y: 90,
-    parents: ['handcart'], // ✅ ONLY HANDCART
-  },
+  // ======================
+  // TIER 6 – CENTER SPINE
+  // ======================
   {
     id: 'jewelry',
     name: 'Jewelry',
     level: 0,
     maxLevel: 1,
-    icon: '/tech/jewelry.png',
-    x: 1640,
-    y: 210,
-    parents: ['multilayer'],
+    icon: '/icons/jewelry.png',
+    x: COL * 6,
+    y: ROW * 1,
+    parents: ['multilayer_structure'],
   },
 
-  // ───────────────────────────
-  // COLUMN 8
-  // ───────────────────────────
+  // ======================
+  // TIER 7 – AGRICULTURE / WOOD
+  // ======================
   {
     id: 'plow',
     name: 'Plow',
     level: 0,
     maxLevel: 10,
-    icon: '/tech/plow.png',
-    x: 1900,
-    y: 160,
+    icon: '/icons/plow.png',
+    x: COL * 7,
+    y: ROW * 0,
     parents: ['jewelry'],
   },
   {
@@ -198,23 +204,23 @@ export const economyTree: TechNode[] = [
     name: 'Sawmill',
     level: 0,
     maxLevel: 10,
-    icon: '/tech/sawmill.png',
-    x: 1900,
-    y: 260,
+    icon: '/icons/sawmill.png',
+    x: COL * 7,
+    y: ROW * 2,
     parents: ['jewelry'],
   },
 
-  // ───────────────────────────
-  // COLUMN 9
-  // ───────────────────────────
+  // ======================
+  // TIER 8 – ENGINEERING
+  // ======================
   {
     id: 'scythe',
     name: 'Scythe',
     level: 0,
     maxLevel: 10,
-    icon: '/tech/scythe.png',
-    x: 2160,
-    y: 90,
+    icon: '/icons/scythe.png',
+    x: COL * 8,
+    y: ROW * 0,
     parents: ['plow'],
   },
   {
@@ -222,47 +228,47 @@ export const economyTree: TechNode[] = [
     name: 'Engineering',
     level: 0,
     maxLevel: 10,
-    icon: '/tech/engineering.png',
-    x: 2160,
-    y: 210,
-    parents: ['sawmill'], // ✅ CONNECTED
+    icon: '/icons/engineering.png',
+    x: COL * 8,
+    y: ROW * 1,
+    parents: ['sawmill'],
   },
   {
     id: 'whipsaw',
     name: 'Whipsaw',
     level: 0,
     maxLevel: 10,
-    icon: '/tech/whipsaw.png',
-    x: 2160,
-    y: 330,
+    icon: '/icons/whipsaw.png',
+    x: COL * 8,
+    y: ROW * 2,
     parents: ['sawmill'],
   },
 
-  // ───────────────────────────
-  // COLUMN 10
-  // ───────────────────────────
+  // ======================
+  // TIER 9 – MATH
+  // ======================
   {
     id: 'mathematics',
     name: 'Mathematics',
     level: 0,
     maxLevel: 10,
-    icon: '/tech/mathematics.png',
-    x: 2420,
-    y: 210,
+    icon: '/icons/mathematics.png',
+    x: COL * 9,
+    y: ROW * 1,
     parents: ['engineering'],
   },
 
-  // ───────────────────────────
-  // COLUMN 11
-  // ───────────────────────────
+  // ======================
+  // TIER 10 – ADVANCED
+  // ======================
   {
-    id: 'openpit',
+    id: 'open_pit_quarry',
     name: 'Open-pit Quarry',
     level: 0,
     maxLevel: 10,
-    icon: '/tech/openpit.png',
-    x: 2680,
-    y: 90,
+    icon: '/icons/open_pit.png',
+    x: COL * 10,
+    y: ROW * 0,
     parents: ['mathematics'],
   },
   {
@@ -270,67 +276,65 @@ export const economyTree: TechNode[] = [
     name: 'Coinage',
     level: 0,
     maxLevel: 10,
-    icon: '/tech/coinage.png',
-    x: 2680,
-    y: 330,
+    icon: '/icons/coinage.png',
+    x: COL * 10,
+    y: ROW * 2,
     parents: ['mathematics'],
   },
 
-  // ───────────────────────────
-  // COLUMN 12
-  // ───────────────────────────
+  // ======================
+  // TIER 11 – FINAL
+  // ======================
   {
-    id: 'stonesaw',
+    id: 'stone_saw',
     name: 'Stone Saw',
     level: 0,
     maxLevel: 10,
-    icon: '/tech/stonesaw.png',
-    x: 2940,
-    y: 90,
-    parents: ['openpit'],
+    icon: '/icons/stone_saw.png',
+    x: COL * 11,
+    y: ROW * 0,
+    parents: ['open_pit_quarry'],
   },
   {
     id: 'machinery',
     name: 'Machinery',
     level: 0,
     maxLevel: 10,
-    icon: '/tech/machinery.png',
-    x: 2940,
-    y: 210,
-    parents: ['mathematics'],
+    icon: '/icons/machinery.png',
+    x: COL * 11,
+    y: ROW * 1,
+    parents: ['coinage'],
   },
   {
-    id: 'shaft',
+    id: 'shaft_mining',
     name: 'Shaft Mining',
     level: 0,
     maxLevel: 10,
-    icon: '/tech/shaft.png',
-    x: 2940,
-    y: 330,
+    icon: '/icons/shaft_mining.png',
+    x: COL * 11,
+    y: ROW * 2,
     parents: ['coinage'],
   },
 
-  // ───────────────────────────
-  // COLUMN 13
-  // ───────────────────────────
   {
     id: 'carriage',
     name: 'Carriage',
     level: 0,
     maxLevel: 10,
-    icon: '/tech/carriage.png',
-    x: 3200,
-    y: 210,
+    icon: '/icons/carriage.png',
+    x: COL * 12,
+    y: ROW * 1,
     parents: ['machinery'],
   },
+
   {
-    id: 'cutting',
+    id: 'cutting_polishing',
     name: 'Cutting & Polishing',
     level: 0,
     maxLevel: 10,
-    icon: '/tech/cutting.png',
-    x: 3200,
-    y: 330,
-    parents: ['machinery'],
+    icon: '/icons/cutting_polishing.png',
+    x: COL * 13,
+    y: ROW * 1,
+    parents: ['carriage'],
   },
 ]
