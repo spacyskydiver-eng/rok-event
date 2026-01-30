@@ -31,14 +31,14 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
       {/* Scroll container */}
       <div className="relative w-full h-[520px] overflow-x-auto overflow-y-hidden">
         {/* ZOOMED-OUT CANVAS */}
-        <div
-          className="relative origin-top-left"
-          style={{
-            width: 2600,
-            height: 1200,
-            transform: 'scale(0.85)',
-          }}
-        >
+<div
+  className="relative"
+  style={{
+    width: 3600,
+    height: 700,
+  }}
+>
+
           {/* Branch lines */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none">
             {nodes.map(node =>
