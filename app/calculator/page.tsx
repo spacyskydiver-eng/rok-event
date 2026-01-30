@@ -530,20 +530,24 @@ const onCalculateGoalsClick = () => {
 <div className="flex gap-3 mb-4">
   <button
     onClick={() => setActiveTree('economy')}
-    className={activeTree === 'economy'
-      ? 'ring-2 ring-blue-400'
-      : 'opacity-60'}
+    className={
+      activeTree === 'economy'
+        ? 'rounded-lg px-4 py-2 bg-blue-500/30 ring-2 ring-blue-400 shadow-[0_0_20px_rgba(80,200,255,0.8)]'
+        : 'rounded-lg px-4 py-2 bg-white/5 opacity-60'
+    }
   >
-    🏛 Economy
+    Economy
   </button>
 
   <button
     onClick={() => setActiveTree('military')}
-    className={activeTree === 'military'
-      ? 'ring-2 ring-red-400'
-      : 'opacity-60'}
+    className={
+      activeTree === 'military'
+        ? 'rounded-lg px-4 py-2 bg-red-500/30 ring-2 ring-red-400 shadow-[0_0_20px_rgba(255,100,100,0.8)]'
+        : 'rounded-lg px-4 py-2 bg-white/5 opacity-60'
+    }
   >
-    ⚔️ Military
+    Military
   </button>
 </div>
 
@@ -552,12 +556,9 @@ const onCalculateGoalsClick = () => {
   title={activeTree === 'economy'
     ? 'Economic Technology'
     : 'Military Technology'}
-nodes={(activeTree === 'economy' ? economyTree : militaryTree).map((n: any) => ({
-  ...n,
-  x: n.x ?? 0,
-  y: n.y ?? 0,
-  parents: n.parents ?? [],
-}))}
+  nodes={activeTree === 'economy'
+    ? economyTree
+    : []}
 />
 
   </CardContent>

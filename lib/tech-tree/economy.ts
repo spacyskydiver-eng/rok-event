@@ -2,22 +2,16 @@
 
 import type { TechNode } from '@/components/tech-tree/TechTree'
 
-export type TechTreeNode = {
-  id: string
-  name: string
-  level: number
-  maxLevel: number
-  icon: string
-  parentId?: string
-}
-
-export const economyTree: TechTreeNode[] = [
+export const economyTree: TechNode[] = [
   {
     id: 'quarrying',
     name: 'Quarrying',
     level: 0,
     maxLevel: 1,
     icon: '/tech/quarrying.png',
+    x: 100,
+    y: 300,
+    parents: [],
   },
 
   {
@@ -26,7 +20,9 @@ export const economyTree: TechTreeNode[] = [
     level: 0,
     maxLevel: 5,
     icon: '/tech/irrigation.png',
-    parentId: 'quarrying',
+    x: 400,
+    y: 200,
+    parents: ['quarrying'],
   },
   {
     id: 'handsaw',
@@ -34,7 +30,9 @@ export const economyTree: TechTreeNode[] = [
     level: 0,
     maxLevel: 5,
     icon: '/tech/handsaw.png',
-    parentId: 'quarrying',
+    x: 400,
+    y: 400,
+    parents: ['quarrying'],
   },
 
   {
@@ -43,7 +41,9 @@ export const economyTree: TechTreeNode[] = [
     level: 0,
     maxLevel: 5,
     icon: '/tech/sickle.png',
-    parentId: 'irrigation',
+    x: 700,
+    y: 120,
+    parents: ['irrigation'],
   },
   {
     id: 'masonry',
@@ -51,7 +51,9 @@ export const economyTree: TechTreeNode[] = [
     level: 0,
     maxLevel: 5,
     icon: '/tech/masonry.png',
-    parentId: 'irrigation',
+    x: 700,
+    y: 260,
+    parents: ['irrigation'],
   },
   {
     id: 'handaxe',
@@ -59,7 +61,9 @@ export const economyTree: TechTreeNode[] = [
     level: 0,
     maxLevel: 5,
     icon: '/tech/handaxe.png',
-    parentId: 'handsaw',
+    x: 700,
+    y: 460,
+    parents: ['handsaw'],
   },
 
   {
@@ -68,7 +72,9 @@ export const economyTree: TechTreeNode[] = [
     level: 0,
     maxLevel: 1,
     icon: '/tech/metallurgy.png',
-    parentId: 'masonry',
+    x: 1000,
+    y: 260,
+    parents: ['masonry'],
   },
 
   {
@@ -77,7 +83,9 @@ export const economyTree: TechTreeNode[] = [
     level: 0,
     maxLevel: 5,
     icon: '/tech/writing.png',
-    parentId: 'metallurgy',
+    x: 1300,
+    y: 200,
+    parents: ['metallurgy'],
   },
   {
     id: 'engineering',
@@ -85,7 +93,9 @@ export const economyTree: TechTreeNode[] = [
     level: 0,
     maxLevel: 5,
     icon: '/tech/engineering.png',
-    parentId: 'metallurgy',
+    x: 1300,
+    y: 350,
+    parents: ['metallurgy'],
   },
 
   {
@@ -94,7 +104,9 @@ export const economyTree: TechTreeNode[] = [
     level: 0,
     maxLevel: 5,
     icon: '/tech/mathematics.png',
-    parentId: 'engineering',
+    x: 1600,
+    y: 260,
+    parents: ['engineering'],
   },
   {
     id: 'coinage',
@@ -102,6 +114,8 @@ export const economyTree: TechTreeNode[] = [
     level: 0,
     maxLevel: 5,
     icon: '/tech/coinage.png',
-    parentId: 'engineering',
+    x: 1600,
+    y: 420,
+    parents: ['engineering'],
   },
 ]
