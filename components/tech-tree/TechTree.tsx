@@ -29,16 +29,17 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
       </div>
 
       {/* Scroll container */}
-      <div className="relative w-full h-[520px] overflow-x-auto overflow-y-hidden">
-        {/* ZOOMED-OUT CANVAS */}
-<div
-  className="relative"
-  style={{
-    width: 3600,
-    height: 700,
-  }}
->
-
+      <div className="relative w-full h-[560px] overflow-x-auto overflow-y-hidden">
+        {/* IMPORTANT: LEFT PADDING FIX */}
+        <div
+          className="relative"
+          style={{
+            width: 6200,
+            height: 1600,
+            paddingLeft: 200, // <-- THIS fixes Quarrying being cut off
+            paddingTop: 80,
+          }}
+        >
           {/* Branch lines */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none">
             {nodes.map(node =>
@@ -49,10 +50,10 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
                 return (
                   <line
                     key={`${pid}-${node.id}`}
-                    x1={parent.x + 220}
-                    y1={parent.y + 50}
-                    x2={node.x}
-                    y2={node.y + 50}
+                    x1={parent.x + 220 + 200}
+                    y1={parent.y + 50 + 80}
+                    x2={node.x + 200}
+                    y2={node.y + 50 + 80}
                     stroke="#2c7ec7"
                     strokeWidth="3"
                     strokeDasharray="8 6"
@@ -74,11 +75,14 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
                   'bg-[#1b6fa8]',
                   'border border-white/20',
                   'shadow-[0_0_30px_rgba(0,160,255,0.25)]',
-                  'hover:shadow-[0_0_60px_rgba(0,200,255,0.9)]',
-                  'hover:scale-[1.04]',
+                  'hover:shadow-[0_0_70px_rgba(0,200,255,1)]',
+                  'hover:scale-[1.05]',
                   'transition-all duration-200'
                 )}
-                style={{ left: node.x, top: node.y }}
+                style={{
+                  left: node.x + 200,
+                  top: node.y + 80,
+                }}
               >
                 <div className="absolute -left-6 top-4 w-14 h-14 bg-[#0e4f7c] rounded-xl border border-white/30 flex items-center justify-center">
                   <Image src={node.icon} alt={node.name} width={40} height={40} />
