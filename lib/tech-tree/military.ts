@@ -1,3 +1,4 @@
-import type { TechNode } from '@/components/tech-tree/TechTree'
+import type { TechNode } from '@/lib/tech-tree/types'
+
 
 export const militaryTree = []

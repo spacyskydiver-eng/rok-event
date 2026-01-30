@@ -1,12 +1,11 @@
-import type { TechNode } from '@/components/tech-tree/TechTree'
+import type { TechNode } from '@/lib/tech-tree/types'
+
 
 /**
- * GRID
- * Each column is one tech tier
- * Each row is vertical alignment
+ * GRID TUNING (RoK-style tight layout)
  */
-const COL = 380
-const ROW = 160
+const COL = 320   // horizontal spacing (TIGHTER)
+const ROW = 130   // vertical spacing (TIGHTER)
 
 export const economyTree: TechNode[] = [
   // ===== COLUMN 0 =====
@@ -62,7 +61,7 @@ export const economyTree: TechNode[] = [
     icon: '/tech/masonry.png',
     x: 2 * COL,
     y: 2 * ROW,
-    parents: ['irrigation', 'handsaw'], // IMPORTANT
+    parents: ['irrigation', 'handsaw'], // CORRECT BRANCH
   },
   {
     id: 'handaxe',
@@ -137,7 +136,7 @@ export const economyTree: TechNode[] = [
     maxLevel: 5,
     icon: '/tech/multilayer.png',
     x: 5 * COL,
-    y: 2 * ROW,
+    y: 3 * ROW,
     parents: ['writing'],
   },
   {
@@ -147,7 +146,7 @@ export const economyTree: TechNode[] = [
     maxLevel: 5,
     icon: '/tech/placer.png',
     x: 5 * COL,
-    y: 4 * ROW,
+    y: 5 * ROW,
     parents: ['metalworking'],
   },
 
@@ -159,8 +158,8 @@ export const economyTree: TechNode[] = [
     maxLevel: 5,
     icon: '/tech/wheel.png',
     x: 6 * COL,
-    y: 1 * ROW, // ABOVE Jewelry, same column line
-    parents: ['handcart'], // ONLY parent
+    y: 1 * ROW, // BEHIND + ABOVE Jewelry
+    parents: ['handcart'], // ONLY
   },
   {
     id: 'jewelry',
@@ -191,8 +190,8 @@ export const economyTree: TechNode[] = [
     maxLevel: 10,
     icon: '/tech/sawmill.png',
     x: 7 * COL,
-    y: 3 * ROW,
-    parents: ['jewelry', 'engineering'], // IMPORTANT
+    y: 4 * ROW,
+    parents: ['jewelry', 'engineering'],
   },
 
   // ===== COLUMN 8 =====
