@@ -524,10 +524,7 @@ const onCalculateGoalsClick = () => {
       {/* Economy Tech Tree */}
 <Card className="border-white/10 bg-black/30">
   <CardContent className="p-6">
-    <TechTree
-      title="Economic Technology"
-      nodes={economyTree}
-    />
+    <TechTree/>
   </CardContent>
 </Card>
 
