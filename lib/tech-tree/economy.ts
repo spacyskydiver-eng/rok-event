@@ -259,4 +259,63 @@ export const economyTree: TechNode[] = [
     y: 3 * ROW,
     parents: ['mathematics'],
   },
+
+  // ===== COLUMN 11 =====
+{
+  id: 'stonesaw',
+  name: 'Stone Saw',
+  level: 0,
+  maxLevel: 10,
+  icon: '/tech/stonesaw.png',
+  x: 11 * COL,
+  y: 0 * ROW,
+  parents: ['openpit'],
+},
+{
+  id: 'shaftmining',
+  name: 'Shaft Mining',
+  level: 0,
+  maxLevel: 10,
+  icon: '/tech/shaftmining.png',
+  x: 11 * COL,
+  y: 3 * ROW,
+  parents: ['openpit'],
+},
+
+// ===== COLUMN 12 =====
+{
+  id: 'machinery',
+  name: 'Machinery',
+  level: 0,
+  maxLevel: 10,
+  icon: '/tech/machinery.png',
+  x: 12 * COL,
+  y: 1.5 * ROW,
+  parents: ['stonesaw'],
+},
+
+// ===== COLUMN 13 =====
+{
+  id: 'carriage',
+  name: 'Carriage',
+  level: 0,
+  maxLevel: 10,
+  icon: '/tech/carriage.png',
+  x: 13 * COL,
+  y: 0 * ROW,
+  parents: ['machinery'],
+},
+{
+  id: 'cuttingpolishing',
+  name: 'Cutting & Polishing',
+  level: 0,
+  maxLevel: 10,
+  icon: '/tech/cuttingpolishing.png',
+  x: 13 * COL,
+  y: 3 * ROW,
+  parents: ['machinery'],
+},
+
 ]
+
+
