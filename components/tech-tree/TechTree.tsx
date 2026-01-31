@@ -8,6 +8,10 @@ const NODE_WIDTH = 240
 const NODE_HEIGHT = 150
 const OFFSET_X = -10   // move right
 const OFFSET_Y = 20   // move down
+const CANVAS_PADDING_RIGHT = 400
+const CANVAS_PADDING_BOTTOM = 300
+
+
 
 type TechTreeProps = {
   title: string
@@ -15,6 +19,9 @@ type TechTreeProps = {
 }
 
 export default function TechTree({ title, nodes }: TechTreeProps) {
+  const maxX = Math.max(...nodes.map((n) => n.x + NODE_WIDTH), 0)
+  const maxY = Math.max(...nodes.map((n) => n.y + NODE_HEIGHT), 0)
+
   return (
     <div className="rounded-2xl bg-gradient-to-b from-[#0b4e87] to-[#08345d] p-4 shadow-2xl">
       {/* Header */}
@@ -37,11 +44,12 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
 <div
   className="relative origin-top-left"
   style={{
-    width: 4000,
-    height: 1600,
-    transform: `translate(${OFFSET_X}px, ${OFFSET_Y}px) scale(0.70)`,
+    width: maxX + CANVAS_PADDING_RIGHT,
+    height: maxY + CANVAS_PADDING_BOTTOM,
+    transform: `translate(${OFFSET_X}px, ${OFFSET_Y}px) scale(0.60)`,
   }}
 >
+
 
           {/* Branch lines */}
 <svg className="absolute inset-0 w-full h-full pointer-events-none">
