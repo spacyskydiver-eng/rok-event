@@ -29,7 +29,7 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
           style={{
             width: 4500,
             height: 1200,
-            transform: 'scale(0.8)', // slightly zoomed out (adjust 0.88–0.96)
+            transform: 'translateX(120px), scale(0.8)', // slightly zoomed out (adjust 0.88–0.96)
           }}
         >
           {/* Branch lines */}
@@ -74,9 +74,33 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
                 )}
                 style={{ left: node.x, top: node.y }}
               >
-                <div className="absolute -left-6 top-4 w-14 h-14 bg-[#0e4f7c] rounded-xl border border-white/30 flex items-center justify-center">
-                  <Image src={node.icon} alt={node.name} width={40} height={40} />
-                </div>
+<div
+  className="
+    absolute
+    -left-8 top-3
+    w-[72px] h-[72px]
+    rounded-xl
+    bg-gradient-to-br from-[#ffe28a] via-[#d6a93b] to-[#9c6b12]
+    shadow-[0_0_14px_rgba(255,200,80,0.9)]
+    flex items-center justify-center
+  "
+>
+  <div
+    className="
+      w-[62px] h-[62px]
+      rounded-lg
+      bg-[#0e4f7c]
+      flex items-center justify-center
+    "
+  >
+    <Image
+      src={node.icon}
+      alt={node.name}
+      width={48}
+      height={48}
+    />
+  </div>
+</div>
 
                 <div className="pl-12 pr-3 py-2 text-white">
                   <div className="text-sm font-semibold">{node.name}</div>
