@@ -213,7 +213,7 @@ export const economyTree: TechNode[] = [
     icon: '/tech/engineering.png',
     x: 8 * COL,
     y: 2 * ROW,
-    parents: ['plow'],
+    parents: ['plow', 'sawmill'],
   },
   {
     id: 'whipsaw',
@@ -279,7 +279,7 @@ export const economyTree: TechNode[] = [
   icon: '/tech/shaftmining.png',
   x: 11 * COL,
   y: 3 * ROW,
-  parents: ['openpit'],
+  parents: ['coinage'],
 },
 
 // ===== COLUMN 12 =====
