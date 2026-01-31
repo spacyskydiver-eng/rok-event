@@ -27,10 +27,10 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
         <div
           className="relative origin-top-left"
           style={{
-            width: 4500 + 120,
+            width: 4500 -10,
             height: 1200,
             transform: 'scale(0.75)', // slightly zoomed out (adjust 0.88–0.96)
-            paddingLeft: 120,
+            paddingLeft: -10,
           }}
         >
           {/* Branch lines */}
