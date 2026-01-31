@@ -4,6 +4,9 @@ import Image from 'next/image'
 import clsx from 'clsx'
 import type { TechNode } from '@/lib/tech-tree/types'
 
+const NODE_WIDTH = 240
+const NODE_HEIGHT = 100
+
 type TechTreeProps = {
   title: string
   nodes: TechNode[]
@@ -30,27 +33,28 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
           }}
         >
           {/* Branch lines */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none">
-            {nodes.map((node) =>
-              node.parents.map((pid) => {
-                const parent = nodes.find((n) => n.id === pid)
-                if (!parent) return null
+<svg className="absolute inset-0 w-full h-full pointer-events-none">
+  {nodes.map((node) =>
+    node.parents.map((pid) => {
+      const parent = nodes.find((n) => n.id === pid)
+      if (!parent) return null
 
-                return (
-                  <line
-                    key={`${pid}-${node.id}`}
-                    x1={parent.x + 220}
-                    y1={parent.y + 50}
-                    x2={node.x}
-                    y2={node.y + 50}
-                    stroke="#2c7ec7"
-                    strokeWidth="3"
-                    strokeDasharray="8 6"
-                  />
-                )
-              })
-            )}
-          </svg>
+      return (
+        <line
+          key={`${pid}-${node.id}`}
+          x1={parent.x + NODE_WIDTH}
+          y1={parent.y + NODE_HEIGHT / 2}
+          x2={node.x}
+          y2={node.y + NODE_HEIGHT / 2}
+          stroke="#2c7ec7"
+          strokeWidth={3}
+          strokeDasharray="8 6"
+        />
+      )
+    })
+  )}
+</svg>
+
 
           {/* Nodes */}
           {nodes.map((node) => {
