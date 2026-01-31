@@ -28,7 +28,7 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
           className="relative origin-top-left"
           style={{
             width: 4600,
-            height: 1400,
+            height: 1600,
             transform: 'translateX(120px), scale(0.70)', // slightly zoomed out (adjust 0.88–0.96)
           }}
         >
