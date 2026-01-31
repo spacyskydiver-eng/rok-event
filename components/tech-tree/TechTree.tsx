@@ -22,16 +22,23 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
       </div>
 
       {/* Scroll container */}
-      <div className="relative w-full h-[520px] overflow-x-auto overflow-y-hidden">
+      <div className="relative w-full h-[520px] overflow-x-auto overflow-y-auto">
         {/* Canvas */}
-        <div
-          className="relative origin-top-left"
-          style={{
-            width: 4600,
-            height: 1600,
-            transform: 'translateX(60px), scale(0.70)', // slightly zoomed out (adjust 0.88–0.96)
-          }}
-        >
+<div
+  className="relative origin-top-left"
+  style={{
+    width: 4600,
+    height: 1600,
+
+    // ✅ THIS is what fixes top & bottom clipping
+    paddingTop: 160,
+    paddingBottom: 200,
+    paddingLeft: 120,
+
+    transform: 'scale(0.65)',
+  }}
+>
+
           {/* Branch lines */}
 <svg className="absolute inset-0 w-full h-full pointer-events-none">
   {nodes.map((node) =>
