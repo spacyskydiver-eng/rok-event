@@ -6,6 +6,7 @@ import type { TechNode } from '@/lib/tech-tree/types'
  */
 const COL = 300   // horizontal spacing (TIGHTER)
 const ROW = 120   // vertical spacing (TIGHTER)
+const START_X = 120
 
 export const economyTree: TechNode[] = [
   // ===== COLUMN 0 =====
@@ -15,7 +16,7 @@ export const economyTree: TechNode[] = [
     level: 0,
     maxLevel: 1,
     icon: '/tech/quarrying.png',
-    x: 0 * COL,
+    x: START_X +0 * COL,
     y: 2 * ROW,
     parents: [],
   },
