@@ -8,8 +8,8 @@ const NODE_WIDTH = 240
 const NODE_HEIGHT = 150
 const OFFSET_X = -10   // move right
 const OFFSET_Y = 20   // move down
-const CANVAS_PADDING_RIGHT = 400
-const CANVAS_PADDING_BOTTOM = 300
+const CANVAS_PADDING_RIGHT = 0
+const CANVAS_PADDING_BOTTOM = 100
 
 
 
