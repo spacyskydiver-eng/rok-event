@@ -37,7 +37,7 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
 <div
   className="relative origin-top-left"
   style={{
-    width: 4600,
+    width: 4000,
     height: 1600,
     transform: `translate(${OFFSET_X}px, ${OFFSET_Y}px) scale(0.70)`,
   }}
