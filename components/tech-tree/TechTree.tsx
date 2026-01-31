@@ -6,8 +6,8 @@ import type { TechNode } from '@/lib/tech-tree/types'
 
 const NODE_WIDTH = 240
 const NODE_HEIGHT = 150
-const OFFSET_X = 10   // move right
-const OFFSET_Y = 0   // move down
+const OFFSET_X = -10   // move right
+const OFFSET_Y = 20   // move down
 
 type TechTreeProps = {
   title: string
