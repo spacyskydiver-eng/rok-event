@@ -6,6 +6,8 @@ import type { TechNode } from '@/lib/tech-tree/types'
 
 const NODE_WIDTH = 240
 const NODE_HEIGHT = 100
+const OFFSET_X = 200   // move right
+const OFFSET_Y = 120   // move down
 
 type TechTreeProps = {
   title: string
@@ -32,14 +34,15 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
 >
 
         {/* Canvas */}
-        <div
-          className="relative origin-top-left"
-          style={{
-            width: 4600,
-            height: 1600,
-            transform: 'translateX(-30px), translateY(200px) scale(0.685)', // slightly zoomed out (adjust 0.88–0.96)
-          }}
-        >
+<div
+  className="relative origin-top-left"
+  style={{
+    width: 4600,
+    height: 1600,
+    transform: `translate(${OFFSET_X}px, ${OFFSET_Y}px) scale(0.60)`,
+  }}
+>
+
           {/* Branch lines */}
 <svg className="absolute inset-0 w-full h-full pointer-events-none">
   {nodes.map((node) =>
