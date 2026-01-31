@@ -39,7 +39,7 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
   style={{
     width: 4600,
     height: 1600,
-    transform: `translate(${OFFSET_X}px, ${OFFSET_Y}px) scale(0.60)`,
+    transform: `translate(${OFFSET_X}px, ${OFFSET_Y}px) scale(0.70)`,
   }}
 >
 
