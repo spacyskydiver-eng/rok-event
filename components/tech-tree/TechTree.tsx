@@ -29,7 +29,7 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
           style={{
             width: 4500,
             height: 1200,
-            transform: 'translateX(120px), scale(0.75)', // slightly zoomed out (adjust 0.88–0.96)
+            transform: 'scale(0.75)', // slightly zoomed out (adjust 0.88–0.96)
             paddingLeft: 120,
           }}
         >
