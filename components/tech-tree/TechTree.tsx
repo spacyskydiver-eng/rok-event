@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import type { TechNode } from '@/lib/tech-tree/types'
 
 const NODE_WIDTH = 240
-const NODE_HEIGHT = 90
+const NODE_HEIGHT = 100
 
 type TechTreeProps = {
   title: string
@@ -29,7 +29,7 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
           style={{
             width: 4600,
             height: 1600,
-            transform: 'scale(0.70)', // slightly zoomed out (adjust 0.88–0.96)
+            transform: 'translateX(60px), scale(0.70)', // slightly zoomed out (adjust 0.88–0.96)
           }}
         >
           {/* Branch lines */}
