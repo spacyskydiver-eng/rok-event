@@ -46,7 +46,7 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
   style={{
     width: maxX + CANVAS_PADDING_RIGHT,
     height: maxY + CANVAS_PADDING_BOTTOM,
-    transform: `translate(${OFFSET_X}px, ${OFFSET_Y}px) scale(0.60)`,
+    transform: `translate(${OFFSET_X}px, ${OFFSET_Y}px) scale(0.65)`,
   }}
 >
 
