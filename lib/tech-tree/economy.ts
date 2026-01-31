@@ -1,11 +1,10 @@
 import type { TechNode } from '@/lib/tech-tree/types'
 
-
 /**
  * GRID TUNING (RoK-style tight layout)
  */
-const COL = 300   // horizontal spacing (TIGHTER)
-const ROW = 120   // vertical spacing (TIGHTER)
+const COL = 450
+const ROW = 120
 const START_X = 100
 
 export const economyTree: TechNode[] = [
@@ -62,7 +61,7 @@ export const economyTree: TechNode[] = [
     icon: '/tech/masonry.png',
     x: START_X + 2 * COL,
     y: 2 * ROW,
-    parents: ['irrigation', 'handsaw'], // CORRECT BRANCH
+    parents: ['irrigation', 'handsaw'],
   },
   {
     id: 'handaxe',
@@ -159,8 +158,8 @@ export const economyTree: TechNode[] = [
     maxLevel: 5,
     icon: '/tech/wheel.png',
     x: START_X + 6 * COL,
-    y: 0.5 * ROW, // BEHIND + ABOVE Jewelry
-    parents: ['multilayer'], // ONLY
+    y: 0.5 * ROW,
+    parents: [''], 
   },
   {
     id: 'jewelry',
@@ -192,7 +191,7 @@ export const economyTree: TechNode[] = [
     icon: '/tech/sawmill.png',
     x: START_X + 8 * COL,
     y: 3 * ROW,
-    parents: ['jewelry',],
+    parents: ['jewelry'],
   },
 
   // ===== COLUMN 9 =====
@@ -214,7 +213,7 @@ export const economyTree: TechNode[] = [
     icon: '/tech/engineering.png',
     x: START_X + 9 * COL,
     y: 2 * ROW,
-    parents: ['plow', 'sawmill'],
+    parents: ['plow', 'sawmill'], 
   },
   {
     id: 'whipsaw',
@@ -262,61 +261,59 @@ export const economyTree: TechNode[] = [
   },
 
   // ===== COLUMN 12 =====
-{
-  id: 'stonesaw',
-  name: 'Stone Saw',
-  level: 0,
-  maxLevel: 10,
-  icon: '/tech/stonesaw.png',
-  x: START_X + 12 * COL,
-  y: 0 * ROW,
-  parents: ['openpit'],
-},
-{
-  id: 'shaftmining',
-  name: 'Shaft Mining',
-  level: 0,
-  maxLevel: 10,
-  icon: '/tech/shaftmining.png',
-  x: START_X + 12 * COL,
-  y: 4 * ROW,
-  parents: ['coinage'],
-},
+  {
+    id: 'stonesaw',
+    name: 'Stone Saw',
+    level: 0,
+    maxLevel: 10,
+    icon: '/tech/stonesaw.png',
+    x: START_X + 12 * COL,
+    y: 0 * ROW,
+    parents: ['openpit'],
+  },
+  {
+    id: 'shaftmining',
+    name: 'Shaft Mining',
+    level: 0,
+    maxLevel: 10,
+    icon: '/tech/shaftmining.png',
+    x: START_X + 12 * COL,
+    y: 4 * ROW,
+    parents: ['coinage'],
+  },
 
-// ===== COLUMN 13 =====
-{
-  id: 'machinery',
-  name: 'Machinery',
-  level: 0,
-  maxLevel: 10,
-  icon: '/tech/machinery.png',
-  x: START_X + 13 * COL,
-  y: 2 * ROW,
-  parents: [''],
-},
+  // ===== COLUMN 13 =====
+  {
+    id: 'machinery',
+    name: 'Machinery',
+    level: 0,
+    maxLevel: 10,
+    icon: '/tech/machinery.png',
+    x: START_X + 13 * COL,
+    y: 2 * ROW,
+    parents: ['mathematics'],
+  },
 
-// ===== COLUMN 14+15 =====
-{
-  id: 'carriage',
-  name: 'Carriage',
-  level: 0,
-  maxLevel: 10,
-  icon: '/tech/carriage.png',
-  x: START_X + 14 * COL,
-  y: 0.5 * ROW,
-  parents: ['machinery'],
-},
-{
-  id: 'cuttingpolishing',
-  name: 'Cutting & Polishing',
-  level: 0,
-  maxLevel: 10,
-  icon: '/tech/cuttingpolishing.png',
-  x: START_X + 15 * COL,
-  y: 2 * ROW,
-  parents: ['machinery'],
-},
-
+  // ===== COLUMN 14+15 =====
+  {
+    id: 'carriage',
+    name: 'Carriage',
+    level: 0,
+    maxLevel: 10,
+    icon: '/tech/carriage.png',
+    x: START_X + 14 * COL,
+    y: 0.5 * ROW,
+    parents: ['machinery'],
+  },
+  {
+    id: 'cuttingpolishing',
+    name: 'Cutting & Polishing',
+    level: 0,
+    maxLevel: 10,
+    icon: '/tech/cuttingpolishing.png',
+    x: START_X + 15 * COL,
+    y: 2 * ROW,
+    parents: ['machinery'],
+  },
 ]
-
 

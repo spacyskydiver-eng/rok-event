@@ -21,6 +21,7 @@ import { militaryTree } from '@/lib/tech-tree/military'
 
 
 
+
 type Speedups = {
   universal: number
   building: number
@@ -116,6 +117,7 @@ function getGoalNumber(goals: any, key: string) {
 }
 
 export default function CalculatorPage() {
+    const [techGoals, setTechGoals] = useState<Record<string, number>>({})
   const {
     kingdomStartDate,
     speedups,
