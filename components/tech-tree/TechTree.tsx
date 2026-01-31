@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import type { TechNode } from '@/lib/tech-tree/types'
 
 const NODE_WIDTH = 240
-const NODE_HEIGHT = 100
+const NODE_HEIGHT = 90
 
 type TechTreeProps = {
   title: string
