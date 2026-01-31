@@ -22,14 +22,22 @@ export default function TechTree({ title, nodes }: TechTreeProps) {
       </div>
 
       {/* Scroll container */}
-      <div className="relative w-full h-[520px] overflow-x-auto overflow-y-auto">
+      <div
+  className="relative w-full h-[520px] overflow-x-auto overflow-y-hidden"
+  onWheel={(e) => {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault()
+    }
+  }}
+>
+
         {/* Canvas */}
         <div
           className="relative origin-top-left"
           style={{
             width: 4600,
             height: 1600,
-            transform: 'translateX(30px), scale(0.70)', // slightly zoomed out (adjust 0.88–0.96)
+            transform: 'translateX(-30px), translateY(200px) scale(0.70)', // slightly zoomed out (adjust 0.88–0.96)
           }}
         >
           {/* Branch lines */}
