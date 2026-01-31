@@ -158,8 +158,8 @@ export const economyTree: TechNode[] = [
     maxLevel: 5,
     icon: '/tech/wheel.png',
     x: 6 * COL,
-    y: 0 * ROW, // BEHIND + ABOVE Jewelry
-    parents: ['handcart'], // ONLY
+    y: 0.5 * ROW, // BEHIND + ABOVE Jewelry
+    parents: ['multilayer'], // ONLY
   },
   {
     id: 'jewelry',
@@ -302,7 +302,7 @@ export const economyTree: TechNode[] = [
   maxLevel: 10,
   icon: '/tech/carriage.png',
   x: 14 * COL,
-  y: 2 * ROW,
+  y: 0.5 * ROW,
   parents: ['machinery'],
 },
 {
